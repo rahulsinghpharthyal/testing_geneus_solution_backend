@@ -1,5 +1,5 @@
 const Detail = require('../models/Details')
-const User = require('../models/user')
+const User = require('../models/User')
 
 const updateDetail = async (req, res) => {
     const { user, goal, activityLevel, gender, dateOfBirth, country, height, weight, goalWeight } = req.body;

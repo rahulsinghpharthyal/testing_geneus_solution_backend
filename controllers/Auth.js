@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const secreat = "yash"
-const User = require('../models/user')
+const User = require('../models/User')
+
 const Auth = (req, res, next) => {
     try {
         const authHeader = req.headers['authorization'] || req.headers['Authorization'];
