@@ -3,9 +3,8 @@ import shortid from "shortid";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import Payment from "../models/payment";
-import User from "../models/user";
+import User from "../models/User";
 import dotenv from "dotenv";
-import user from "../models/user";
 import jwt from "jsonwebtoken";
 import Token from "../models/token.js";
 
