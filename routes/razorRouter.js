@@ -2,11 +2,11 @@ import express from "express";
 import shortid from "shortid";
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import Payment from "../models/payment";
+import Payment from "../models/Payment";
 import User from "../models/User";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import Token from "../models/token.js";
+import Token from "../models/Token.js";
 
 dotenv.config();
 

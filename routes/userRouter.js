@@ -1,8 +1,8 @@
 import express from 'express';
 import jwt, { verify } from 'jsonwebtoken';
-import Token from "../models/token.js";
+import Token from "../models/Token.js";
 import dotenv from 'dotenv';
-import NewUser from "../models/newUser";
+import NewUser from "../models/NewUser";
 dotenv.config();
 const nodemailer = require("nodemailer");
 const router = express.Router();

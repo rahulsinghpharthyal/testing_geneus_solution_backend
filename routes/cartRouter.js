@@ -1,5 +1,5 @@
 import express from "express";
-import Cart from "../models/cart";
+import Cart from "../models/Cart";
 import User from "../models/User";
 
 const router = express.Router();

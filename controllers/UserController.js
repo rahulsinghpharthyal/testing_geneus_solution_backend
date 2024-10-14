@@ -105,7 +105,8 @@ const loginUser = async (req, res) => {
          );
          const refreshToken = jwt.sign(
            user.toJSON(),
-           process.env.REFRESH_SECRET_KEY
+           process.env.REFRESH_SECRET_KEY,
+           { expiresIn: "15m" }
          );
          const token = createTokens(user);
          res.cookie("token", token, {

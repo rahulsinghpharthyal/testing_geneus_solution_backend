@@ -2,10 +2,10 @@ import jwt from "jsonwebtoken";
 import express from "express";
 import bcryptjs from "bcryptjs";
 import User from "../models/User.js";
-import Token from "../models/token.js";
-import Query from "../models/query.js";
-import Enquiry from "../models/enquiry.js";
-import Visitor from "../models/visitor";
+import Token from "../models/Token.js";
+import Enquiry from "../models/Enquiry.js";
+import Visitor from "../models/Visitor.js";
+
 const nodemailer = require("nodemailer");
 const router = express.Router();
 const crypto = require('crypto');
