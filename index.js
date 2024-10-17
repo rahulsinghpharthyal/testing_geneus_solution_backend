@@ -81,9 +81,3 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () =>
     console.log(`Server is running successfully on PORT ${PORT}`)
 );
-
-
-mongoose
-    .connect(process.env.DATABASE)
-    .then(() => console.log("DB Connected Successfully"))
-    .catch((err) => console.log("DB Connection err =>", err));

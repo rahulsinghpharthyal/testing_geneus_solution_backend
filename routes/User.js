@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {getUser,registerUser, loginUser} = require('../controllers/UserController')
-const {Auth, refreshTokenHandler} = require('../controllers/Auth')
+const {Auth, refreshTokenHandler} = require('../controllers/AuthController')
 router.post('/register', registerUser)
 router.post('/login', loginUser)
 router.get('/', Auth, getUser);

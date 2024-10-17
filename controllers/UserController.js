@@ -4,7 +4,7 @@ const Food = require('../models/Food');
 const Plan = require('../models/Plan')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {generateAccessToken, generateRefreshToken} = require('../controllers/Auth')
+const {generateAccessToken, generateRefreshToken} = require('../controllers/AuthController')
 
 const registerUser = async (req, res) => {
    try {
