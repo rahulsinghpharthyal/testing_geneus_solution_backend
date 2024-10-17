@@ -1,7 +1,9 @@
-const express = require('express')
-const router = express.Router()
-const {updateToPremium} = require('../controllers/PlanController')
-const {Auth} = require('../controllers/AuthController')
-router.put('/',Auth, updateToPremium)
+import express from 'express';
+import { updateToPremium } from '../controllers/PlanController.js';
+import { Auth } from '../controllers/AuthController.js';
 
-module.exports = router
+const router = express.Router();
+
+router.put('/', Auth, updateToPremium);
+
+export default router;

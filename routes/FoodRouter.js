@@ -1,8 +1,10 @@
-const express = require('express')
-const router = express.Router()
-const Food = require('../models/Food')
-const User = require('../models/User')
-const mongoose = require('mongoose')
+import express from 'express';
+import Food from '../models/Food.js';
+import User from '../models/User.js';
+import mongoose from 'mongoose';
+import { Auth, refreshTokenHandler } from '../controllers/AuthController.js'
+
+const router = express.Router();
 router.post('/', async (req, res) => {
     const { user, breakfast, lunch, dinner } = req.body;
 
@@ -80,20 +82,20 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
 
-    // Validate the user ID
+  
     if (!mongoose.isValidObjectId(id)) {
         return res.status(400).json({ message: "Invalid user ID" });
     }
 
     try {
-        // Fetch the food data and populate the 'item' field inside breakfast, lunch, and dinner
+      
         const foodData = await Food.findOne({ user: id })
-            .populate('user')  // Populating the user information
-            .populate('breakfast.item')  // Populate 'item' field in breakfast
-            .populate('lunch.item')      // Populate 'item' field in lunch
-            .populate('dinner.item');    // Populate 'item' field in dinner
+            .populate('user')  
+            .populate('breakfast.item')  
+            .populate('lunch.item')     
+            .populate('dinner.item');    
 
-        // Check if food data exists
+       
         if (!foodData) {
             return res.status(404).json({ message: "No food data found" });
         }
@@ -103,7 +105,7 @@ router.get('/:id', async (req, res) => {
         let totalCarbs = 0;
         let totalFat = 0;
 
-        // Helper function to calculate nutrients for a meal
+     
         const calculateNutrients = (mealItems) => {
             return mealItems.reduce((total, meal) => {
                 const quantity = meal.quantity || 1;
@@ -144,5 +146,91 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.put('/', Auth, async (req, res) => {
+    const { userId } = req.user; 
+    const { meal, quantity, id } = req.body; 
+  
+    try {
 
-module.exports = router;
+      let userMeals = await Food.findOne({ user: userId });
+      
+      if (!userMeals) {
+        return res.status(404).json({ message: 'User meal data not found' });
+      }
+      const findAndRemoveMealItem = (mealArray) => {
+        const index = mealArray.findIndex(item => item._id.toString() === id);
+        if (index !== -1) {
+          const mealItem = mealArray.splice(index, 1)[0]; 
+          return mealItem;
+        }
+        return null;
+      };
+  
+      let mealItem;
+  
+      mealItem = findAndRemoveMealItem(userMeals.breakfast);
+      if (!mealItem) mealItem = findAndRemoveMealItem(userMeals.lunch);
+      if (!mealItem) mealItem = findAndRemoveMealItem(userMeals.dinner);
+  
+      if (!mealItem) {
+        return res.status(404).json({ message: 'Meal item not found' });
+      }
+  
+      if (quantity && quantity !== mealItem.quantity) {
+        mealItem.quantity = quantity;
+      }
+  
+      if (meal === 'Breakfast') {
+        userMeals.breakfast.push(mealItem);
+      } else if (meal === 'Lunch') {
+        userMeals.lunch.push(mealItem);
+      } else if (meal === 'Dinner') {
+        userMeals.dinner.push(mealItem);
+      } else {
+        return res.status(400).json({ message: 'Invalid meal type' });
+      }
+  
+      await userMeals.save();
+      return res.status(200).json({ message: 'Meal updated successfully', userMeals });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  router.delete('/',Auth, async (req, res) => {
+      const {meal, id} = req.body;
+      const { userId } = req.user; 
+      try{
+        let userMeals = await Food.findOne({ user: userId });
+      
+        if (!userMeals) {
+          return res.status(404).json({ message: 'User meal data not found' });
+        }
+        const findAndRemoveMealItem = (mealArray) => {
+          const index = mealArray.findIndex(item => item._id.toString() === id);
+          if (index !== -1) {
+            const mealItem = mealArray.splice(index, 1)[0]; 
+            return mealItem;
+          }
+          return null;
+        };
+    
+        let mealItem;
+    
+        mealItem = findAndRemoveMealItem(userMeals.breakfast);
+        if (!mealItem) mealItem = findAndRemoveMealItem(userMeals.lunch);
+        if (!mealItem) mealItem = findAndRemoveMealItem(userMeals.dinner);
+    
+        if (!mealItem) {
+          return res.status(404).json({ message: 'Meal item not found' });
+        }else{
+          await userMeals.save();
+          return res.status(200).json({ message: 'Meal item removed successfully' });
+        }
+      }catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+      }
+  })
+ export default router;

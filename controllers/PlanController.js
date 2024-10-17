@@ -1,5 +1,6 @@
-const { model } = require('mongoose')
-const Plan = require('../models/Plan')
+import { model } from 'mongoose';
+import Plan from '../models/Plan.js';
+
 
 const updateToPremium = async (req, res) => {
     const { userId } = req.user;
@@ -34,6 +35,6 @@ const updateToPremium = async (req, res) => {
     }
 };
 
-module.exports = {
+export{
     updateToPremium
 }

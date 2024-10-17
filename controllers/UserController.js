@@ -1,10 +1,11 @@
-const User = require('../models/User');
-const Detail = require('../models/Details')
-const Food = require('../models/Food');
-const Plan = require('../models/Plan')
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const {generateAccessToken, generateRefreshToken} = require('../controllers/AuthController')
+import User from '../models/User.js';
+import Detail from '../models/Details.js';
+import Food from '../models/Food.js';
+import Plan from '../models/Plan.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { generateAccessToken, generateRefreshToken } from '../controllers/AuthController.js';
+
 
 const registerUser = async (req, res) => {
    try {
@@ -180,7 +181,7 @@ const getUser = async (req, res) => {
 
 
 
-module.exports = {
+export {
     registerUser,
     loginUser,
     getUser

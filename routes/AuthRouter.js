@@ -5,10 +5,10 @@ import User from "../models/User.js";
 import Token from "../models/Token.js";
 import Enquiry from "../models/Enquiry.js";
 import Visitor from "../models/Visitor.js";
-
-const nodemailer = require("nodemailer");
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 const router = express.Router();
-const crypto = require('crypto');
+
 
 
 // Create a nodemailer transporter

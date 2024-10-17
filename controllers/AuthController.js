@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User')
+import jwt from 'jsonwebtoken'
+import User from '../models/User.js';
 
 const Auth = (req, res, next) => {
     try {
@@ -15,7 +15,7 @@ const Auth = (req, res, next) => {
 
         
         try {
-            const decodedData = jwt.verify(token, secreat);
+            const decodedData = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
             console.log('decodedData : ', decodedData);
              if (!decodedData.id) {
             return next(new ErrorHandler(403, "Invalid token"));
@@ -109,11 +109,11 @@ const apiVisitors = async (req, res) => {
 };
 
 const generateAccessToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, secreat, { expiresIn: '10m' });
+  return jwt.sign({ id: user._id, email: user.email }, process.env.ACCESS_SECRET_KEY, { expiresIn: '10m' });
 };
 
 const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, secreat , { expiresIn: '1h' });
+  return jwt.sign({ id: user._id, email: user.email }, process.env.REFRESH_SECRET_KEY , { expiresIn: '1h' });
 };
 
 const refreshTokenHandler = async (req, res) => {
@@ -126,7 +126,7 @@ const refreshTokenHandler = async (req, res) => {
         const user = await User.findOne({ refreshToken });
         if (!user) return res.sendStatus(403);
 
-        jwt.verify(refreshToken, secreat, (err, decoded) => {
+        jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY, (err, decoded) => {
             if (err) return res.sendStatus(403);
             
             const accessToken = generateAccessToken(user);
@@ -136,6 +136,6 @@ const refreshTokenHandler = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
-module.exports = { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, apiVisitors, forgotPassword, resetPassword };
+export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, apiVisitors, forgotPassword, resetPassword };
 
 

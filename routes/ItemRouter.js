@@ -1,8 +1,9 @@
-const express = require('express')
-const router = express.Router()
-const {createItem, getItems} = require('../controllers/ItemController')
+import express from 'express';
+import { createItem, getItems } from '../controllers/ItemController.js';
 
-router.post('/', createItem)
-router.get('/', getItems)
+const router = express.Router();
 
-module.exports = router
+router.post('/', createItem);
+router.get('/', getItems);
+
+export default router;
