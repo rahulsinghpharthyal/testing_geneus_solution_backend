@@ -42,6 +42,15 @@ const userSchema = new Schema(
         courses: [String],
         resetPasswordToken: String,
         resetPasswordExpires: Date,
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user",
+        },
+        subscriptionStatus: {
+            type: Boolean,
+            default: false,
+        },
 		details : {
 			type : mongoose.Schema.Types.ObjectId,
 			ref : 'Details'
