@@ -1,39 +1,42 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js';
 
+
 const Auth = (req, res, next) => {
-    try {
-        const authHeader = req.headers['authorization'] || req.headers['Authorization'];
-        console.log('authHeader : ', authHeader);
+  try {
+      const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+      console.log('authHeader : ', authHeader);
 
-        if (!authHeader) return next(new ErrorHandler(401, "Please log in to access"));
+      if (!authHeader) {
+          return res.status(401).json({ error: "Please log in to access" });
+      }
 
-        const token = authHeader.split(' ')[1];
-        console.log('token : ', token);
+      const token = authHeader.split(' ')[1];
+      console.log('token : ', token);
 
-        if (!token) return next(new ErrorHandler(401, "Please log in to access"));
+      if (!token) {
+          return res.status(401).json({ error: "Please log in to access" });
+      }
 
-        
-        try {
-            const decodedData = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
-            console.log('decodedData : ', decodedData);
-             if (!decodedData.id) {
-            return next(new ErrorHandler(403, "Invalid token"));
-        }
-
-        
-        req.user = { userId: decodedData.id };
-        next();
-          } catch (verifyError) {
-            console.error('Token verification failed:', verifyError);
-            return next(new ErrorHandler(403, "Invalid token"));
+      try {
+          const decodedData = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
+          console.log('decodedData : ', decodedData);
+          
+          if (!decodedData.id) {
+              return res.status(403).json({ error: "Invalid token" });
           }
-       
-       
-    } catch (error) {
-        console.log('error : ', error);
-        next(new ErrorHandler(403, "Forbidden"));
-    }
+
+        
+          req.user = { userId: decodedData.id };
+          next();
+      } catch (verifyError) {
+          console.error('Token verification failed:', verifyError);
+          return res.status(403).json({ error: "Invalid token" });
+      }
+  } catch (error) {
+      console.log('error : ', error);
+      return res.status(403).json({ error: "Forbidden" });
+  }
 };
 
 const forgotPassword = async (req, res) => {

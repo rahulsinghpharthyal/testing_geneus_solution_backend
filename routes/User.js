@@ -4,9 +4,9 @@ import { Auth, refreshTokenHandler } from '../controllers/AuthController.js';
 
 const router = express.Router();
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.get('/', Auth, getUser);
-router.post('/refresh', refreshTokenHandler);
+router.post('/api/user/register', registerUser);
+router.post('/api/user/login', loginUser);
+router.get('/api/user', Auth, getUser);
+router.post('/api/user/refresh', refreshTokenHandler);
 
 export default router;

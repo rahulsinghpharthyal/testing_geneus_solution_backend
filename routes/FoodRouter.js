@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { Auth, refreshTokenHandler } from '../controllers/AuthController.js'
 
 const router = express.Router();
-router.post('/', async (req, res) => {
+router.post('/api/food', async (req, res) => {
     const { user, breakfast, lunch, dinner } = req.body;
 
     try {
@@ -79,7 +79,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/api/food/:id', async (req, res) => {
     const { id } = req.params;
 
   
@@ -146,7 +146,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.put('/', Auth, async (req, res) => {
+router.put('/api/food', Auth, async (req, res) => {
     const { userId } = req.user; 
     const { meal, quantity, id } = req.body; 
   
@@ -198,7 +198,7 @@ router.put('/', Auth, async (req, res) => {
     }
   });
 
-  router.delete('/',Auth, async (req, res) => {
+  router.delete('/api/food/',Auth, async (req, res) => {
       const {meal, id} = req.body;
       const { userId } = req.user; 
       try{

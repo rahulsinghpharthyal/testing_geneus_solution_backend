@@ -4,6 +4,6 @@ import { Auth } from '../controllers/AuthController.js';
 
 const router = express.Router();
 
-router.put('/', Auth, updateToPremium);
+router.put('/api/plan', Auth, updateToPremium);
 
 export default router;

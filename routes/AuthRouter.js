@@ -13,12 +13,12 @@ const router = express.Router();
 
 // Create a nodemailer transporter
 const transporter = nodemailer.createTransport({
-  // Configure the email provider settings
-  // For example, for Gmail:
   service: "Gmail",
+ secure : true,
+ port: 465,  
   auth: {
-    user: process.env.email,
-    pass: process.env.password,
+    user: "",
+    pass: "",
   },
 });
 

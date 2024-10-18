@@ -4,6 +4,6 @@ import { createItem, getItems } from '../controllers/ItemController.js';
 const router = express.Router();
 
 router.post('/', createItem);
-router.get('/', getItems);
+router.get('/api/item', getItems);
 
 export default router;

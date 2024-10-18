@@ -8,8 +8,9 @@ dotenv.config();
 import cookieParser from "cookie-parser";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from 'url';  // Import to fix __dirname
-import { dirname } from 'path';      // Import to fix __dirname
+import { fileURLToPath } from 'url'; 
+import { dirname } from 'path'; 
+import User from "./routes/User.js"
 import './db/Connect.js'
 
 
@@ -21,10 +22,10 @@ const app = express();
 
 // Set middleware of CORS 
 app.use((req, res, next) => {
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.FRONTEND_URL
-    );
+    // res.setHeader(
+    //   "Access-Control-Allow-Origin",
+    //   process.env.FRONTEND_URL
+    // );
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
@@ -46,7 +47,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 
-// Dynamic route loading
+
 const routes = readdirSync("./routes");
 routes.forEach(async (r) => {
     const routePath = `./routes/${r}`;

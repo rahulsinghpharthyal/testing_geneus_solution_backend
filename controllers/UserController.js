@@ -5,8 +5,16 @@ import Plan from '../models/Plan.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { generateAccessToken, generateRefreshToken } from '../controllers/AuthController.js';
-
-
+import nodemailer from 'nodemailer';
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+ secure : true,
+ port: 465,  
+  auth: {
+    user: "",
+    pass: "",
+  },
+});
 const registerUser = async (req, res) => {
    try {
        const { name, email, password, mobile  } = req.body;
@@ -22,8 +30,8 @@ const registerUser = async (req, res) => {
        if (userExists) {
          return res.status(400).json({ error: "Email already exists" });
        }
-       const salt = await bcryptjs.genSalt(10);
-       const hashedPassword = await bcryptjs.hash(password, salt);
+       const salt = await bcrypt.genSalt(10);
+       const hashedPassword = await bcrypt.hash(password, salt);
        const newUser = new User({
          name,
          email,
@@ -48,19 +56,18 @@ const registerUser = async (req, res) => {
        newUser.plan = newPlan._id;
        await newUser.save();
 
-       // Send the email without sensitive info
+      
        const currentDate = new Date();
        const registrationRequest = "Geneus Solutions New User Registration request(Modal)";
        const updatedRegStatus = `${registrationRequest} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
 
        const mailOptions = {
-         from: process.env.email,
-         to: process.env.toAdmin,
+         from: "yashmaurya2109@gmail.com",
+         to: email,
          subject: updatedRegStatus,
          text: `New user registered: Name: ${name}, Email: ${email}, Mobile: ${mobile}`,
        };
 
-       // Send the email
        await  transporter.sendMail(mailOptions, (error, info) => {
                    if (error) {
                      console.log(error);
@@ -68,6 +75,11 @@ const registerUser = async (req, res) => {
                    }
                    console.log("Email sent:", info.response);
                  });
+
+let accessToken = generateAccessToken(newUser);
+let refreshToken = generateRefreshToken(newUser);
+                 console.log(accessToken, refreshToken               
+                 )
        return res.status(200).json({
                           message: 'User registered successfully',
                           user: {
@@ -93,37 +105,36 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
        const { email, password } = req.body;
+      console.log(email,password)
        if (!password) return res.status(400).json({ error: "Password is required" });
        if (!email) return res.status(400).json({ error: "Email is required" });
            const user = await User.findOne({ email }).exec();
-       if (!user || !bcryptjs.compareSync(password, user.password)) {
+         
+       if (!user || !bcrypt.compareSync(password, user.password)) {
+        console.log("User", user);
          return res.status(400).json({ error: "Invalid Email or Password" });
        }
-         const accessToken = jwt.sign(
-           user.toJSON(),
-           process.env.ACCESS_SECRET_KEY,
-           { expiresIn: "15m" }
-         );
-         const refreshToken = jwt.sign(
-           user.toJSON(),
-           process.env.REFRESH_SECRET_KEY,
-           { expiresIn: "15m" }
-         );
-         const token = createTokens(user);
-         res.cookie("token", token, {
-           maxAge: 1000 * 60 * 5,
-           httpOnly: true,
-           sameSite: "lax",
-           secure: true,
-         });
-         const dbToken = new Token({ token });
-         const newToken = await dbToken.save();
+       console.log("User", user);
+         const accessToken = generateAccessToken(user);
+         const refreshToken = generateRefreshToken(user);
+        //  const token = createTokens(user);
+        //  res.cookie("token", token, {
+        //    maxAge: 1000 * 60 * 5,
+        //    httpOnly: true,
+        //    sameSite: "lax",
+        //    secure: true,
+        //  });
+        
          return res.status(200).json({
-           accessToken,
-           refreshToken,
-           email: user.email,
-           name: user.name,
-           id: user.id,
+          message: 'Logged in successfully',
+          user: {
+              id: user._id,
+              name: user.name,
+              email: user.email,
+              plan : user.plan
+          },
+          accessToken, 
+          refreshToken
          });
          } catch (error) {
        return res.status(500).json({ error: "Authentication Failed!" });
@@ -140,7 +151,7 @@ const getUser = async (req, res) => {
             .populate('food')
             .populate('plan');
 
-        console.log(user.details.caloriegoal);
+        
         
         const totalCalories = user.details.caloriegoal;
         const goal = user.details.goal;
