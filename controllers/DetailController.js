@@ -1,5 +1,7 @@
 import User from "../models/User.js";
 import Details from "../models/Details.js";
+import { configDotenv } from 'dotenv';
+configDotenv()
 const updateDetail = async (req, res) => {
     const { user, goal, activityLevel, gender, dateOfBirth, country, height, weight, goalWeight } = req.body;
     console.log(req.body)

@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js';
-
-
+import Token from "../models/Token.js";
+import Visitor from "../models/Visitor.js";
+import { configDotenv } from 'dotenv';
+configDotenv()
 const Auth = (req, res, next) => {
   try {
       const authHeader = req.headers['authorization'] || req.headers['Authorization'];
@@ -39,65 +41,6 @@ const Auth = (req, res, next) => {
   }
 };
 
-const forgotPassword = async (req, res) => {
-     try {
-
-     const { email } = req.body;
-     const user = await User.findOne({ email });
-       console.log(' user info '+ user);
-     if (!user) {
-       return res.status(400).send('No user with that email address found. Please provide a valid email address');
-     }
-
-     const token = crypto.randomBytes(20).toString('hex');
-
-     user.resetPasswordToken = token;
-     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-     await user.save();
-     const resetURL = process.env.FRONTEND_URL + `/reset-password?token=${token}`;
-
-     const mailOptions = {
-       from:process.env.toAdmin,
-       to: email,
-       subject: 'Password Reset',
-       text: `You are receiving this because you  have requested to reset the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetURL}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
-     };
-
-     // Send the email
-     transporter.sendMail(mailOptions, (error, info) => {
-       if (error) {
-         console.log(error);
-         return res.status(500).json({ error: "Failed to send email" });
-       }
-       console.log("Email sent:", info.response);
-     });
-
-     res.send('Password reset email sent.');
-     } catch (error) {
-       console.error("Error in forgot-password route:", error);
-       res.status(500).send("Internal Server Error");
-     }
-   };
-
-const resetPassword = async (req, res) => {
-    const { token, password } = req.body;
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }
-    });
-
-    if (!user) {
-      return res.status(400).send('Password reset token is invalid or has expired.');
-    }
-
-    // Hash the new password and save it
-    user.password = await bcryptjs.hash(password, 12);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
-
-    res.status(200).send('Password has been reset successfully. Please log in');
-  };
 
 const apiVisitors = async (req, res) => {
   const { ip, city } = req.body;
@@ -139,6 +82,19 @@ const refreshTokenHandler = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
-export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, apiVisitors, forgotPassword, resetPassword };
+
+const visitors = async (req, res) => {
+  const { ip, city } = req.body;
+  const newVisitor = new Visitor({ ip, city });
+
+  try {
+    await newVisitor.save();
+    res.status(201).send('Visitor data saved successfully');
+  } catch (error) {
+    res.status(500).send('Error saving visitor data');
+  }
+}
+
+export {  generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, visitors };
 
 
