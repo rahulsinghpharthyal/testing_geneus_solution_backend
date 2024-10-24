@@ -1,11 +1,10 @@
 import User from '../models/User.js';
-import Detail from '../models/Details.js';
-import Food from '../models/Food.js';
+import Detail from '../models/FoodDetails.js';
+import Food from '../models/FoodDetails.js'
 import Plan from '../models/Plan.js';
 import { generateAccessToken, generateRefreshToken } from '../controllers/AuthController.js';
 import sendEmail from './EmailController.js';
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs"
 import Token from "../models/Token.js";
 import Enquiry from "../models/Enquiry.js";
 import crypto from "crypto";
@@ -29,8 +28,8 @@ const registerUser = async (req, res) => {
        if (userExists) {
          return res.status(400).json({ error: "Email already exists" });
        }
-       const salt = await bcrypt.genSalt(10);
-       const hashedPassword = await bcrypt.hash(password, salt);
+       const salt = await bcryptjs.genSalt(10);
+       const hashedPassword = await bcryptjs.hash(password, salt);
        const newUser = new User({
          name,
          email,
@@ -96,7 +95,7 @@ const loginUser = async (req, res) => {
        if (!email) return res.status(400).json({ error: "Email is required" });
            const user = await User.findOne({ email }).exec();
          
-       if (!user || !bcrypt.compareSync(password, user.password)) {
+       if (!user || !bcryptjs.compareSync(password, user.password)) {
         console.log("User", user);
          return res.status(400).json({ error: "Invalid Email or Password" });
        }
@@ -257,7 +256,7 @@ const resetPassword = async (req, res) => {
  }
 
  // Hash the new password and save it
- user.password = await bcrypt.hash(password, 12);
+ user.password = await bcryptjs.hash(password, 12);
  user.resetPasswordToken = undefined;
  user.resetPasswordExpires = undefined;
  await user.save();
@@ -271,7 +270,7 @@ const login = async (req, res) => {
     if (!password) return res.status(400).json({ error: "Password is required" });
     if (!email) return res.status(400).json({ error: "Email is required" });
         const user = await User.findOne({ email }).exec();
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+    if (!user || !bcryptjs.compareSync(password, user.password)) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
       const accessToken = jwt.sign(
@@ -319,8 +318,8 @@ const signup = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ error: "Email already exists" });
     }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
     const newUser = new User({
       name,
       email,

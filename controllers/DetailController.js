@@ -1,5 +1,5 @@
 import User from "../models/User.js";
-import Details from "../models/Details.js";
+import Details from "../models/FoodDetails.js";
 import { configDotenv } from 'dotenv';
 configDotenv()
 const updateDetail = async (req, res) => {

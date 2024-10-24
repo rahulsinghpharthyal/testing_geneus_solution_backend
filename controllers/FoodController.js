@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import mongoose from 'mongoose';
 import { Auth, refreshTokenHandler } from '../controllers/AuthController.js'
 import { configDotenv } from 'dotenv';
+
 configDotenv()
 const postFood =  async (req, res) => {
     const { user, breakfast, lunch, dinner } = req.body;
@@ -82,7 +83,7 @@ const postFood =  async (req, res) => {
 const getFoodById =  async (req, res) => {
     const { id } = req.params;
 
-  
+  console.log("remove food called ")
     if (!mongoose.isValidObjectId(id)) {
         return res.status(400).json({ message: "Invalid user ID" });
     }
@@ -200,7 +201,7 @@ const updateFood = async (req, res) => {
 
   const removeFood = async (req, res) => {
     const { userId } = req.user; 
-    const { meal, quantity, id } = req.body; 
+    const { id } = req.body; 
   
     try {
 
@@ -221,26 +222,7 @@ const updateFood = async (req, res) => {
       let mealItem;
   
       mealItem = findAndRemoveMealItem(userMeals.breakfast);
-      if (!mealItem) mealItem = findAndRemoveMealItem(userMeals.lunch);
-      if (!mealItem) mealItem = findAndRemoveMealItem(userMeals.dinner);
-  
-      if (!mealItem) {
-        return res.status(404).json({ message: 'Meal item not found' });
-      }
-  
-      if (quantity && quantity !== mealItem.quantity) {
-        mealItem.quantity = quantity;
-      }
-  
-      if (meal === 'Breakfast') {
-        userMeals.breakfast.push(mealItem);
-      } else if (meal === 'Lunch') {
-        userMeals.lunch.push(mealItem);
-      } else if (meal === 'Dinner') {
-        userMeals.dinner.push(mealItem);
-      } else {
-        return res.status(400).json({ message: 'Invalid meal type' });
-      }
+     
   
       await userMeals.save();
       return res.status(200).json({ message: 'Meal updated successfully', userMeals });

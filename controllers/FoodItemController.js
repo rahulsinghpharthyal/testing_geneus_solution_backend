@@ -1,4 +1,4 @@
-import Item from "../models/Items.js";
+import Item from '../models/FoodItems.js'
 
 const createItem = async (req, res) => {
     try {
