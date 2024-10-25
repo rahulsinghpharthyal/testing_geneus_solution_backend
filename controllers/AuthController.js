@@ -21,6 +21,7 @@ const Auth = (req, res, next) => {
       }
 
       try {
+        console.log('ACCESS_SECRET_KEY : ', process.env.ACCESS_SECRET_KEY);
           const decodedData = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
           console.log('decodedData : ', decodedData);
           
@@ -59,7 +60,7 @@ const generateAccessToken = (user) => {
 };
 
 const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.REFRESH_SECRET_KEY , { expiresIn: '1h' });
+  return jwt.sign({ id: user._id, email: user.email }, process.env.REFRESH_SECRET_KEY );
 };
 
 const refreshTokenHandler = async (req, res) => {

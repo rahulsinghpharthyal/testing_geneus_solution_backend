@@ -82,14 +82,14 @@ const postFood =  async (req, res) => {
  
 const getFoodById =  async (req, res) => {
     const { id } = req.params;
-
-  console.log("remove food called ")
+console.log(id)
+  
     if (!mongoose.isValidObjectId(id)) {
         return res.status(400).json({ message: "Invalid user ID" });
     }
 
     try {
-      
+     
         const foodData = await Food.findOne({ user: id })
             .populate('user')  
             .populate('breakfast.item')  
@@ -100,7 +100,7 @@ const getFoodById =  async (req, res) => {
         if (!foodData) {
             return res.status(404).json({ message: "No food data found" });
         }
-
+        console.log("remove food called ")
         let totalCalories = 0;
         let totalProtein = 0;
         let totalCarbs = 0;

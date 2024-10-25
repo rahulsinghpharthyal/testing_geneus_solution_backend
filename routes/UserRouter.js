@@ -20,7 +20,7 @@ const router = express.Router();
 router.post('/api/user/signup', signup);
 router.post('/api/user/login', loginUser);
 router.get('/api/user', Auth, getUser);
-router.post('/api/user/refresh', refreshTokenHandler);
+router.post('/api/user/refreshToken', refreshTokenHandler);
 router.post('/userAuth', validateToken, userAuth);
 router.post('/newUserRegister',newUserRegister );
 
