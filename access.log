@@ -671,3 +671,6 @@
 ::ffff:192.168.0.100 - - [24/Oct/2024:07:10:36 +0000] "GET /api/getFoodById/6711e2abf0bcd03a47cd12d6 HTTP/1.1" 304 - "-" "okhttp/4.9.2"
 ::ffff:192.168.0.100 - - [24/Oct/2024:07:10:59 +0000] "GET /api/user HTTP/1.1" 201 1456 "-" "okhttp/4.9.2"
 ::ffff:192.168.0.100 - - [24/Oct/2024:07:11:00 +0000] "GET /api/getFoodById/6711e2abf0bcd03a47cd12d6 HTTP/1.1" 304 - "-" "okhttp/4.9.2"
+::ffff:127.0.0.1 - - [25/Oct/2024:05:20:00 +0000] "POST /api/user/register HTTP/1.1" 200 670 "-" "Thunder Client (https://www.thunderclient.com)"
+::ffff:127.0.0.1 - - [25/Oct/2024:05:21:56 +0000] "POST /api/user/register HTTP/1.1" 404 157 "-" "Thunder Client (https://www.thunderclient.com)"
+::ffff:127.0.0.1 - - [25/Oct/2024:05:22:08 +0000] "POST /api/user/signup HTTP/1.1" 200 670 "-" "Thunder Client (https://www.thunderclient.com)"

@@ -9,83 +9,11 @@ import Token from "../models/Token.js";
 import Enquiry from "../models/Enquiry.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import NewUser from "../models/newUser.js";
 import { configDotenv } from 'dotenv';
+
 configDotenv()
 
-const registerUser = async (req, res) => {
-   try {
-    console.log(process.env.toAdmin);
-       const { name, email, password, mobile  } = req.body;
-       if (!name) return res.status(400).json({ error: "Name is required" });
-       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-         return res.status(400).json({ error: "Valid email is required" });
-       if (!password || password.length < 8) {
-         return res.status(400).json({ error: "Password is required and must be at least 8 characters" });
-       }
-       if (!mobile) return res.status(400).json({ error: "Mobile number is required" });
-
-       const userExists = await User.findOne({ email }).exec();
-       if (userExists) {
-         return res.status(400).json({ error: "Email already exists" });
-       }
-       const salt = await bcryptjs.genSalt(10);
-       const hashedPassword = await bcryptjs.hash(password, salt);
-       const newUser = new User({
-         name,
-         email,
-         password: hashedPassword,
-         mobile
-       });
-
-       // Create related details, food, and plan
-       const newDetail = await Detail.create({ user: newUser._id });
-       const newFood = await Food.create({ user: newUser._id });
-       const freePlanPrice = 0;
-
-       const newPlan = await Plan.create({
-         userId: newUser._id,
-         name: 'Free Trial',
-         duration: 7,
-         price: freePlanPrice
-       });
-
-       newUser.details = newDetail._id;
-       newUser.food = newFood._id;
-       newUser.plan = newPlan._id;
-       await newUser.save();
-
-      
-       const currentDate = new Date();
-       const registrationRequest = "Geneus Solutions New User Registration request(Modal)";
-       const updatedRegStatus = `${registrationRequest} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
-
-       sendEmail( email, process.env.toAdmin, updatedRegStatus,  `New user registered: Name: ${name}, Email: ${email}, Mobile: ${mobile}`)
-      
-let accessToken = generateAccessToken(newUser);
-let refreshToken = generateRefreshToken(newUser);
-                 console.log(accessToken, refreshToken               
-                 )
-       return res.status(200).json({
-                          message: 'User registered successfully',
-                          user: {
-                              id: newUser._id,
-                              name: newUser.name,
-                              email: newUser.email,
-                              details: newUser.details,
-                              food: newUser.food,
-                              number : newUser.number,
-                              plan : newUser.plan,
-                          },
-                          accessToken,
-                          refreshToken
-                      });
-     } catch (err) {
-       console.log("Error occurred", err);
-       return res.status(500).json({ error: "An error occurred! Please try again later." });
-     } finally {
-       console.log("====FINALLY CALLED====");
-     }
-};
 
 const loginUser = async (req, res) => {
     try {
@@ -305,73 +233,77 @@ const login = async (req, res) => {
 
 const signup = async (req, res) => {
   try {
-    const { name, email, password, mobile  } = req.body;
-    if (!name) return res.status(400).json({ error: "Name is required" });
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      return res.status(400).json({ error: "Valid email is required" });
-    if (!password || password.length < 8) {
-      return res.status(400).json({ error: "Password is required and must be at least 8 characters" });
-    }
-    if (!mobile) return res.status(400).json({ error: "Mobile number is required" });
+    console.log(process.env.toAdmin);
+       const { name, email, password, mobile  } = req.body;
+       if (!name) return res.status(400).json({ error: "Name is required" });
+       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+         return res.status(400).json({ error: "Valid email is required" });
+       if (!password || password.length < 8) {
+         return res.status(400).json({ error: "Password is required and must be at least 8 characters" });
+       }
+       if (!mobile) return res.status(400).json({ error: "Mobile number is required" });
 
-    const userExists = await User.findOne({ email }).exec();
-    if (userExists) {
-      return res.status(400).json({ error: "Email already exists" });
-    }
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      mobile
-    });
+       const userExists = await User.findOne({ email }).exec();
+       if (userExists) {
+         return res.status(400).json({ error: "Email already exists" });
+       }
+       const salt = await bcryptjs.genSalt(10);
+       const hashedPassword = await bcryptjs.hash(password, salt);
+       const newUser = new User({
+         name,
+         email,
+         password: hashedPassword,
+         mobile
+       });
 
-    // Create related details, food, and plan
-    const newDetail = await Detail.create({ user: newUser._id });
-    const newFood = await Food.create({ user: newUser._id });
-    const freePlanPrice = 0;
+       // Create related details, food, and plan
+       const newDetail = await Detail.create({ user: newUser._id });
+       const newFood = await Food.create({ user: newUser._id });
+       const freePlanPrice = 0;
 
-    const newPlan = await Plan.create({
-      userId: newUser._id,
-      name: 'Free Trial',
-      duration: 7,
-      price: freePlanPrice
-    });
+       const newPlan = await Plan.create({
+         userId: newUser._id,
+         name: 'Free Trial',
+         duration: 7,
+         price: freePlanPrice
+       });
 
-    newUser.details = newDetail._id;
-    newUser.food = newFood._id;
-    newUser.plan = newPlan._id;
-    await newUser.save();
+       newUser.details = newDetail._id;
+       newUser.food = newFood._id;
+       newUser.plan = newPlan._id;
+       await newUser.save();
 
-    // Send the email without sensitive info
-    const currentDate = new Date();
-    const registrationRequest = "Geneus Solutions New User Registration request(Modal)";
-    const updatedRegStatus = `${registrationRequest} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
+      
+       const currentDate = new Date();
+       const registrationRequest = "Geneus Solutions New User Registration request(Modal)";
+       const updatedRegStatus = `${registrationRequest} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
 
-
-sendEmail(process.env.toAdmin, email, updatedRegStatus, `New user registered: Name: ${name}, Email: ${email}, Mobile: ${mobile}`);
-  
-    return res.status(200).json({
-                       message: 'User registered successfully',
-                       user: {
-                           id: newUser._id,
-                           name: newUser.name,
-                           email: newUser.email,
-                           details: newUser.details,
-                           food: newUser.food,
-                           number : newUser.number,
-                           plan : newUser.plan,
-                       },
-                       accessToken,
-                       refreshToken
-                   });
-  } catch (err) {
-    console.log("Error occurred", err);
-    return res.status(500).json({ error: "An error occurred! Please try again later." });
-  } finally {
-    console.log("====FINALLY CALLED====");
-  }
+       await sendEmail( email, process.env.toAdmin, updatedRegStatus,  `New user registered: Name: ${name}, Email: ${email}, Mobile: ${mobile}`)
+      
+let accessToken = generateAccessToken(newUser);
+let refreshToken = generateRefreshToken(newUser);
+                 console.log(accessToken, refreshToken               
+                 )
+       return res.status(200).json({
+                          message: 'User registered successfully',
+                          user: {
+                              id: newUser._id,
+                              name: newUser.name,
+                              email: newUser.email,
+                              details: newUser.details,
+                              food: newUser.food,
+                              number : newUser.number,
+                              plan : newUser.plan,
+                          },
+                          accessToken,
+                          refreshToken
+                      });
+     } catch (err) {
+       console.log("Error occurred", err);
+       return res.status(500).json({ error: "An error occurred! Please try again later." });
+     } finally {
+       console.log("====FINALLY CALLED====");
+     }
 }
 
 const enquiry =  async (req, res) => {
@@ -392,8 +324,73 @@ const enquiry =  async (req, res) => {
       return res.status(400).send("Error occurred! Please try again later");
   }
 }
+
+const validateToken = async (req, res, next) => {
+  try {
+    const token = req.cookies["token"];
+    if (!token) {
+      return res.status(401).json({ authorized: false, message: "User is not authenticated" });
+    }
+    const validToken = jwt.verify(token, process.env.SECRET_KEY);
+    const rootUser = await Token.findOne({ token: token });
+    if (!validToken || !rootUser) {
+      throw new Error("User not found");
+    }
+    req.name = validToken.name;
+    req.email = validToken.email;
+    req.id = validToken._id;
+    req.courses = validToken.courses;
+    return next();
+  } catch (error) {
+    console.log(error);
+    return res.status(401).send("Unauthorized: No token provided");
+  }
+}
+
+const userAuth = async (req, res) => {
+  try {
+    res.json({
+      authorized: true,
+      message: "User is authenticated",
+      username: req.name,
+      useremail: req.email,
+      userId: req.id,
+      courses: req.courses
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(401).send("Unauthorized: No token provided");
+  }
+}
+
+const newUserRegister = async (req, res) => {
+  try {
+    const { fullname, email, mobile } = req.body;
+    // Check if the required fields are provided
+    if (!fullname || !email || !mobile) {
+      return res.status(400).json({ error: 'Please provide fullname, email, and mobile' });
+    }
+    const currentDate = new Date();
+    const registrationRequest = "Geneus Solutions New User Registration request(Modal)";
+    const updatedRegStatus = `${registrationRequest} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
+    sendEmail(process.env.toAdmin, process.env.email, updatedRegStatus,  `Name: ${fullname}\nEmail: ${email}\nMobile: ${mobile}`)
+   
+    console.log("===newUserRegister called====");
+    // Send the email
+      const newUser = new NewUser({
+      fullname,
+      email,
+      mobile
+    });
+    // Save the user to the database
+    const savedUser = await newUser.save();
+    res.status(201).json({ message: 'User registered successfully', user: savedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while registering the user' });
+  }
+}
 export {
-    registerUser,
     loginUser,
     getUser,
     logut,
@@ -403,5 +400,7 @@ export {
     login,
     enquiry,
     signup,
-
+newUserRegister,
+userAuth,
+validateToken
 };

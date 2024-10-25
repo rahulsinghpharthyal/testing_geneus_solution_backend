@@ -10,7 +10,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url'; 
 import { dirname } from 'path'; 
-import User from "./routes/User.js"
+
 import './db/Connect.js'
 
 
