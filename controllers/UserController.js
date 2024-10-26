@@ -44,11 +44,11 @@ const loginUser = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Check for mobile or web request
+   
    
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-      // For mobile requests, return tokens in the JSON response
+     
       return res.status(200).json({
         message: 'Logged in successfully',
         user: {
