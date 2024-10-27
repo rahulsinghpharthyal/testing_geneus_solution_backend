@@ -8,7 +8,7 @@ const sendEmail = async (receiver, sender, subject, text) => {
         service: 'gmail',
         auth: {
             user: process.env.toAdmin,
-            pass: process.env.Email_Pass,
+            pass: process.env.toPassword,
         },
       });
   
