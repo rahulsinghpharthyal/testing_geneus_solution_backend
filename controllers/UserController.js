@@ -9,7 +9,7 @@ import Token from "../models/Token.js";
 import Enquiry from "../models/Enquiry.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import NewUser from "../models/newUser.js";
+import NewUser from "../models/NewUser.js";
 import { configDotenv } from 'dotenv';
 import jwt from "jsonwebtoken";
 

@@ -1,5 +1,5 @@
 import express from "express";
-import Course from "../models/course.js";
+import Course from "../models/Course.js";
 import User from "../models/User.js";
 import { configDotenv } from 'dotenv';
 configDotenv()
