@@ -2,7 +2,7 @@ import express from "express";
 import shortid from "shortid";
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import Payment from "../models/payment.js";
+import Payment from "../models/Payment.js";
 import User from "../models/User.js";
 import dotenv from "dotenv";
 import sendEmail from "./EmailController.js";
