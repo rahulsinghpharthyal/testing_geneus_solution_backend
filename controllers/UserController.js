@@ -11,7 +11,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import NewUser from "../models/newUser.js";
 import { configDotenv } from 'dotenv';
-
+import jwt from "jsonwebtoken";
 
 configDotenv()
 
@@ -44,8 +44,6 @@ const loginUser = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-   
-   
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
      
@@ -60,11 +58,7 @@ const loginUser = async (req, res) => {
         accessToken,
         refreshToken
       });
-    
       // For web requests, set tokens as cookies
-     
-      
-    
     
   } catch (error) {
     console.error("Authentication Error:", error); // Log any errors
@@ -242,7 +236,7 @@ const login = async (req, res) => {
       );
       const token = createTokens(user);
       res.cookie("token", token, {
-        maxAge: 1000 * 60 * 5,
+        maxAge: 1000 * 60 * 10,
         httpOnly: true,
         sameSite: "lax",
         secure: true,
@@ -261,6 +255,17 @@ const login = async (req, res) => {
   }
 }
 
+export const createTokens = (user) => {
+  try {
+    const token = jwt.sign(user.toJSON(), process.env.SECRET_KEY, {
+      expiresIn: "600s",
+    });
+    return token;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
 const signup = async (req, res) => {
   try {
     const { name, email, password, mobile  } = req.body;
@@ -276,8 +281,9 @@ const signup = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ error: "Email already exists" });
     }
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
+    //const salt = await bcryptjs.genSalt(10);
+
+    const hashedPassword = await bcryptjs.hash(password, 10);
     const newUser = new User({
       name,
       email,
