@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "node -r esm index.js"
+        "start": "node -r esm index.js",
+        "run_dev": "nodemon index.js"
     },
     "author": "",
     "license": "ISC",

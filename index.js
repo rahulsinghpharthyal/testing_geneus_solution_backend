@@ -65,7 +65,6 @@ app.listen(PORT, () =>
     console.log(`Server is running successfully on PORT ${PORT}`)
 );
 
-
 mongoose
     .connect(process.env.DATABASE)
     .then(() => console.log("DB Connected Successfully"))
