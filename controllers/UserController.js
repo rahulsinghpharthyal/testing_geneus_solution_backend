@@ -2,7 +2,7 @@ import User from '../models/User.js';
 import Detail from '../models/FoodDetails.js';
 import Food from '../models/Food.js';
 import Plan from '../models/Plan.js';
-import { generateAccessToken, generateRefreshToken } from '../controllers/AuthController.js';
+import { generateAccessToken, generateRefreshToken, generateAdminAccessToken, generateAdminRefreshToken } from '../controllers/AuthController.js';
 import sendEmail from './EmailController.js';
 import bcryptjs from "bcryptjs"
 import Token from "../models/Token.js";
@@ -19,7 +19,7 @@ configDotenv()
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Request Body:", req.body); // Log request body
+    console.log("Request Body:", req.body); 
 
     // Validate input
     if (!email) return res.status(400).json({ error: "Email is required" });
@@ -39,13 +39,33 @@ const loginUser = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
-
-    // Generate tokens
+   
+   if(user.role === 'admin'){
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
-
-   
-   
+   const adminAccessToken = generateAdminAccessToken(user);
+   const adminRefreshToken = generateAdminRefreshToken(user);
+console.log("Admin referesh token:", adminRefreshToken); // Log admin refresh token
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+    res.cookie('adminaccessToken', adminAccessToken, { httpOnly: true, secure: true });
+    res.cookie('adminrefreshToken', adminRefreshToken, { httpOnly: true, secure: true });
+      return res.status(200).json({
+        message: 'Logged in successfully as admin',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          plan: user.plan
+        },
+        accessToken,
+        refreshToken,
+        adminAccessToken,
+        adminRefreshToken
+      });
+   }else{
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
      
@@ -60,14 +80,10 @@ const loginUser = async (req, res) => {
         accessToken,
         refreshToken
       });
-    
-      // For web requests, set tokens as cookies
-     
-      
-    
-    
+   }
+ 
   } catch (error) {
-    console.error("Authentication Error:", error); // Log any errors
+    console.error("Authentication Error:", error); 
     return res.status(500).json({ error: "Authentication Failed!" });
   }
 };
