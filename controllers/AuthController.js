@@ -26,7 +26,7 @@ const Auth = (req, res, next) => {
               return res.status(403).json({ error: "Invalid token" });
           }
           
-          req.user = { userId: decodedData.id };
+          req.user = { userId: decodedData.id, role: decodedData.role };
           next();
       } catch (verifyError) {
           console.error('Token verification failed:', verifyError);
@@ -38,36 +38,12 @@ const Auth = (req, res, next) => {
   }
 };
 const AdminAuth = (req, res, next) => {
-  try {
-      const authHeader = req.headers['authorization'] || req.headers['Authorization'];
-      
-      if (!authHeader) {
-          return res.status(401).json({ error: "Please log in as admin to access" });
-      }
-      
-      // Remove any quotes from the token
-      const token = authHeader.split(' ')[1].replace(/"/g, '');
-      
-      if (!token) {
-          return res.status(401).json({ error: "Please log in to access" });
-      }
-
-      try {
-          const decodedData = jwt.verify(token, process.env.ADMIN_ACCESS_SECRET_KEY);
-          
-          if (!decodedData.id) {
-              return res.status(403).json({ error: "Invalid token" });
-          }
-          
-          req.user = { userId: decodedData.id };
-          next();
-      } catch (verifyError) {
-          console.error('Token verification failed:', verifyError);
-          return res.status(403).json({ error: "Invalid token" });
-      }
-  } catch (error) {
-      console.log('error : ', error);
-      return res.status(403).json({ error: "Forbidden" });
+  const {role} = req.user
+  console.log(role)
+  if (role === 'admin') {
+    next()
+  }else{
+    return res.status(403).json({ error: "Forbidden" });
   }
 };
 
@@ -84,19 +60,14 @@ const apiVisitors = async (req, res) => {
 };
 
 const generateAccessToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.ACCESS_SECRET_KEY, { expiresIn: '10m' });
+  console.log(user.role)
+  return jwt.sign({ id: user._id, email: user.email ,role : user.role}, process.env.ACCESS_SECRET_KEY, { expiresIn: '10m' });
 };
 
 const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.REFRESH_SECRET_KEY );
-};
-const generateAdminAccessToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.ADMIN_ACCESS_SECRET_KEY, { expiresIn: '10m' });
+  return jwt.sign({ id: user._id, email: user.email, role : user.role }, process.env.REFRESH_SECRET_KEY );
 };
 
-const generateAdminRefreshToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.ADMIN_REFRESH_SECRET_KEY );
-};
 const refreshTokenHandler = async (req, res) => {
     const { refreshToken } = req.body;
 
@@ -150,6 +121,6 @@ const visitors = async (req, res) => {
   }
 }
 
-export {adminRefreshToken,  AdminAuth, generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, visitors, generateAdminAccessToken, generateAdminRefreshToken };
+export { AdminAuth, generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, visitors };
 
 
