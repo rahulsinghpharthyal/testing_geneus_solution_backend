@@ -43,6 +43,9 @@ const loginUser = async (req, res) => {
     // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
+    console.log("refresh Token:", refreshToken)
+    const updatedData = await User.findOneAndUpdate({email},{refreshToken:refreshToken},{new:true})
+    console.log('updatedData',updatedData)
 
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
@@ -53,7 +56,8 @@ const loginUser = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          plan: user.plan
+          plan: user.plan,
+          role:user.role
         },
         accessToken,
         refreshToken
