@@ -26,7 +26,7 @@ const Auth = (req, res, next) => {
               return res.status(403).json({ error: "Invalid token" });
           }
           
-          req.user = { userId: decodedData.id };
+          req.user = { userId: decodedData.id, role: decodedData.role };
           next();
       } catch (verifyError) {
           console.error('Token verification failed:', verifyError);
@@ -37,7 +37,15 @@ const Auth = (req, res, next) => {
       return res.status(403).json({ error: "Forbidden" });
   }
 };
-
+const AdminAuth = (req, res, next) => {
+  const {role} = req.user
+  console.log(role)
+  if (role === 'admin') {
+    next()
+  }else{
+    return res.status(403).json({ error: "Forbidden" });
+  }
+};
 
 const apiVisitors = async (req, res) => {
   const { ip, city } = req.body;
@@ -52,11 +60,12 @@ const apiVisitors = async (req, res) => {
 };
 
 const generateAccessToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.ACCESS_SECRET_KEY, { expiresIn: '10m' });
+  console.log(user.role)
+  return jwt.sign({ id: user._id, email: user.email ,role : user.role}, process.env.ACCESS_SECRET_KEY, { expiresIn: '10m' });
 };
 
 const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.REFRESH_SECRET_KEY );
+  return jwt.sign({ id: user._id, email: user.email, role : user.role }, process.env.REFRESH_SECRET_KEY );
 };
 
 const refreshTokenHandler = async (req, res) => {
@@ -80,6 +89,7 @@ const refreshTokenHandler = async (req, res) => {
     }
 };
 
+
 const visitors = async (req, res) => {
   const { ip, city } = req.body;
   const newVisitor = new Visitor({ ip, city });
@@ -92,6 +102,6 @@ const visitors = async (req, res) => {
   }
 }
 
-export {  generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, visitors };
+export { AdminAuth, generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, visitors };
 
 

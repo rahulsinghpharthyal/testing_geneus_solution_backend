@@ -14,13 +14,13 @@ const razorpay = new Razorpay({
 const createOrder = async (req, res) => {
     try {
         const { amount } = req.body;
-
+console.log(amount)
         const options = {
             amount: amount * 100, 
             currency: 'INR',
             receipt: `receipt_order_${Date.now()}`,
         };
-
+console.log(options)
         
         const order = await razorpay.orders.create(options);
         if (!order) return res.status(500).send("Some error occurred while creating order.");
