@@ -89,26 +89,7 @@ const refreshTokenHandler = async (req, res) => {
     }
 };
 
-const adminRefreshToken = async (req, res) => {
-  const { refreshToken } = req.body;
 
-  if (!refreshToken) return res.sendStatus(401);
-
-  try {
-      console.log('refreshToken : ', refreshToken);
-      const user = await User.findOne({ refreshToken });
-      if (!user) return res.sendStatus(403);
-
-      jwt.verify(refreshToken, process.env.ADMIN_REFRESH_SECRET_KEY, (err, decoded) => {
-          if (err) return res.sendStatus(403);
-          
-          const accessToken = generateAccessToken(user);
-          res.json({ accessToken });
-      });
-  } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
-  }
-};
 const visitors = async (req, res) => {
   const { ip, city } = req.body;
   const newVisitor = new Visitor({ ip, city });
