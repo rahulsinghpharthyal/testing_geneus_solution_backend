@@ -22,10 +22,10 @@ const app = express();
 
 // Set middleware of CORS 
 app.use((req, res, next) => {
-    // res.setHeader(
-    //   "Access-Control-Allow-Origin",
-    //   process.env.FRONTEND_URL
-    // );
+    res.setHeader(
+      "Access-Control-Allow-Origin",
+      process.env.FRONTEND_URL
+    );
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
@@ -64,3 +64,9 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () =>
     console.log(`Server is running successfully on PORT ${PORT}`)
 );
+
+
+mongoose
+    .connect(process.env.DATABASE)
+    .then(() => console.log("DB Connected Successfully"))
+    .catch((err) => console.log("DB Connection err =>", err));

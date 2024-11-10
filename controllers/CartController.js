@@ -1,5 +1,5 @@
 import express from "express";
-import Cart from "../models/cart.js";
+import Cart from "../models/Cart.js";
 import User from "../models/User.js";
 import { configDotenv } from 'dotenv';
 configDotenv()

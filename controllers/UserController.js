@@ -9,9 +9,9 @@ import Token from "../models/Token.js";
 import Enquiry from "../models/Enquiry.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import NewUser from "../models/newUser.js";
+import NewUser from "../models/NewUser.js";
 import { configDotenv } from 'dotenv';
-
+import jwt from "jsonwebtoken";
 
 configDotenv()
 
@@ -38,7 +38,6 @@ const loginUser = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
-   
   
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
@@ -61,8 +60,6 @@ const loginUser = async (req, res) => {
         accessToken,
         refreshToken
       });
-   
- 
   } catch (error) {
     console.error("Authentication Error:", error); 
     return res.status(500).json({ error: "Authentication Failed!" });
@@ -258,6 +255,16 @@ const resetPassword = async (req, res) => {
  res.status(200).send('Password has been reset successfully. Please log in');
 };
 
+export const createTokens = (user) => {
+  try {
+    const token = jwt.sign(user.toJSON(), process.env.SECRET_KEY, {
+      expiresIn: "600s",
+    });
+    return token;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
 
 const signup = async (req, res) => {
   try {
@@ -274,8 +281,9 @@ const signup = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ error: "Email already exists" });
     }
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
+    //const salt = await bcryptjs.genSalt(10);
+
+    const hashedPassword = await bcryptjs.hash(password, 10);
     const newUser = new User({
       name,
       email,

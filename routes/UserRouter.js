@@ -16,8 +16,6 @@ validateToken,
 import { Auth, refreshTokenHandler} from '../controllers/AuthController.js';
 const router = express.Router();
 
-
-
 router.post('/api/user/signup', signup);
 router.get('/api/user', Auth, getUser);
 router.post('/api/user/refreshToken', refreshTokenHandler);
