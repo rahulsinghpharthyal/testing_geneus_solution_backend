@@ -19,33 +19,34 @@ configDotenv()
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Request Body:", req.body); // Log request body
+    console.log("Request Body:", req.body); 
 
-    // Validate input
+   
     if (!email) return res.status(400).json({ error: "Email is required" });
     if (!password) return res.status(400).json({ error: "Password is required" });
 
     const user = await User.findOne({ email }).exec();
-    console.log("User fetched:", user); // Log fetched user
+    console.log("User fetched:", user);
 
-    // Validate user credentials
     if (!user) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
 
     const isPasswordValid = bcryptjs.compareSync(password, user.password);
-    console.log("Is Password Valid:", isPasswordValid); // Log password validity
+    console.log("Is Password Valid:", isPasswordValid); 
 
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
-
-    // Generate tokens
+  
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
     console.log("refresh Token:", refreshToken)
     const updatedData = await User.findOneAndUpdate({email},{refreshToken:refreshToken},{new:true})
     console.log('updatedData',updatedData)
+
+    const token = new Token({token : refreshToken})
+    await token.save();
 
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
@@ -62,14 +63,51 @@ const loginUser = async (req, res) => {
         accessToken,
         refreshToken
       });
-      // For web requests, set tokens as cookies
-    
   } catch (error) {
-    console.error("Authentication Error:", error); // Log any errors
+    console.error("Authentication Error:", error); 
     return res.status(500).json({ error: "Authentication Failed!" });
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!password) return res.status(400).json({ error: "Password is required" });
+    if (!email) return res.status(400).json({ error: "Email is required" });
+        const user = await User.findOne({ email }).exec();
+    if (!user || !bcryptjs.compareSync(password, user.password)) {
+      return res.status(400).json({ error: "Invalid Email or Password" });
+    }
+      const accessToken = jwt.sign(
+        user.toJSON(),
+        process.env.ACCESS_SECRET_KEY,
+        { expiresIn: "15m" }
+      );
+      const refreshToken = jwt.sign(
+        user.toJSON(),
+        process.env.REFRESH_SECRET_KEY
+      );
+      const token = new Token({refreshToken})
+      await token.save();
+      res.cookie("token", token, {
+        maxAge: 1000 * 60 * 5,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: true,
+      });
+      const dbToken = new Token({ token });
+      const newToken = await dbToken.save();
+      return res.status(200).json({
+        accessToken,
+        refreshToken,
+        email: user.email,
+        name: user.name,
+        id: user.id,
+      });
+      } catch (error) {
+    return res.status(500).json({ error: "Authentication Failed!" });
+  }
+}
 
 const getUser = async (req, res) => {
   const { userId } = req.user;
@@ -219,45 +257,6 @@ const resetPassword = async (req, res) => {
 
  res.status(200).send('Password has been reset successfully. Please log in');
 };
-
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!password) return res.status(400).json({ error: "Password is required" });
-    if (!email) return res.status(400).json({ error: "Email is required" });
-        const user = await User.findOne({ email }).exec();
-    if (!user || !bcryptjs.compareSync(password, user.password)) {
-      return res.status(400).json({ error: "Invalid Email or Password" });
-    }
-      const accessToken = jwt.sign(
-        user.toJSON(),
-        process.env.ACCESS_SECRET_KEY,
-        { expiresIn: "15m" }
-      );
-      const refreshToken = jwt.sign(
-        user.toJSON(),
-        process.env.REFRESH_SECRET_KEY
-      );
-      const token = createTokens(user);
-      res.cookie("token", token, {
-        maxAge: 1000 * 60 * 10,
-        httpOnly: true,
-        sameSite: "lax",
-        secure: true,
-      });
-      const dbToken = new Token({ token });
-      const newToken = await dbToken.save();
-      return res.status(200).json({
-        accessToken,
-        refreshToken,
-        email: user.email,
-        name: user.name,
-        id: user.id,
-      });
-      } catch (error) {
-    return res.status(500).json({ error: "Authentication Failed!" });
-  }
-}
 
 export const createTokens = (user) => {
   try {

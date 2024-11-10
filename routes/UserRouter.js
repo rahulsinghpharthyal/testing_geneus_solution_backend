@@ -11,8 +11,9 @@ import {
   signup,
 newUserRegister,
 userAuth,
-validateToken } from '../controllers/UserController.js';
-import { Auth, refreshTokenHandler } from '../controllers/AuthController.js';
+validateToken,
+ } from '../controllers/UserController.js';
+import { Auth, refreshTokenHandler} from '../controllers/AuthController.js';
 const router = express.Router();
 
 router.post('/signup', signup);
