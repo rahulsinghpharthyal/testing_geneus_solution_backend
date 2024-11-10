@@ -62,7 +62,10 @@ const userSchema = new Schema(
 		plan : {
 			type : mongoose.Schema.Types.ObjectId,
 			ref : 'Plan'
-		}
+		},
+        refreshToken: {
+            type: String,
+        },
     },
     { timestamp: true }
 );

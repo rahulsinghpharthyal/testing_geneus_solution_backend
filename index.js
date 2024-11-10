@@ -11,6 +11,7 @@ import fs from "fs";
 import { fileURLToPath } from 'url'; 
 import { dirname } from 'path'; 
 
+
 import './db/Connect.js'
 
 
@@ -64,7 +65,6 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () =>
     console.log(`Server is running successfully on PORT ${PORT}`)
 );
-
 
 mongoose
     .connect(process.env.DATABASE)

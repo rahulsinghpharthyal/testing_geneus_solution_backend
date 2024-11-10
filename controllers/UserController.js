@@ -41,6 +41,9 @@ const loginUser = async (req, res) => {
   
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
+    console.log("refresh Token:", refreshToken)
+    const updatedData = await User.findOneAndUpdate({email},{refreshToken:refreshToken},{new:true})
+    console.log('updatedData',updatedData)
 
     const token = new Token({token : refreshToken})
     await token.save();
@@ -55,7 +58,7 @@ const loginUser = async (req, res) => {
           name: user.name,
           email: user.email,
           plan: user.plan,
-          role : user.role
+          role:user.role
         },
         accessToken,
         refreshToken
