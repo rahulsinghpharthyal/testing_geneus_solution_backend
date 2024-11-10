@@ -7,7 +7,7 @@ import Enquiry from "../models/Enquiry.js";
 import Visitor from "../models/Visitor.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import {logut, contact, login,  signup, enquiry, forgotPassword, resetPassword} from '../controllers/UserController.js'
+import {logut, contact, loginUser,  signup, enquiry, forgotPassword, resetPassword} from '../controllers/UserController.js'
 const router = express.Router();
 
 
@@ -15,7 +15,7 @@ router.post("/logout", logut);
 
 router.post("/contact", contact);
 
-router.post("/login",login);
+router.post("/login",loginUser);
 
 router.post("/signup", signup);
 
