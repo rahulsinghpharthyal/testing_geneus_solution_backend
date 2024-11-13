@@ -204,12 +204,10 @@ const updateFood = async (req, res) => {
     const { id } = req.body; 
   
     try {
-
-      let userMeals = await Food.findOne({ user: userId });
-      
+      let userMeals = await Food.findOne({ user: userId });      
       if (!userMeals) {
         return res.status(404).json({ message: 'User meal data not found' });
-      }
+      }  
       const findAndRemoveMealItem = (mealArray) => {
         const index = mealArray.findIndex(item => item._id.toString() === id);
         if (index !== -1) {
@@ -217,20 +215,24 @@ const updateFood = async (req, res) => {
           return mealItem;
         }
         return null;
-      };
-  
+      };  
       let mealItem;
+       mealItem = findAndRemoveMealItem(userMeals.breakfast) ||
+                 findAndRemoveMealItem(userMeals.lunch) ||
+                 findAndRemoveMealItem(userMeals.dinner);
   
-      mealItem = findAndRemoveMealItem(userMeals.breakfast);
-     
-  
+      if (!mealItem) {
+        return res.status(404).json({ message: 'Meal item not found' });
+      }      
       await userMeals.save();
+  
       return res.status(200).json({ message: 'Meal updated successfully', userMeals });
     } catch (error) {
-      console.error(error);
+      console.error('Error in removeFood controller:', error);
       return res.status(500).json({ message: 'Server error' });
     }
-  }
+  };
+  
 
   export {
     getFoodById,
