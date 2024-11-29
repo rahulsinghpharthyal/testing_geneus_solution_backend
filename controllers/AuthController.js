@@ -6,10 +6,11 @@ import { configDotenv } from 'dotenv';
 configDotenv()
 const Auth = (req, res, next) => {
   try {
+      console.log('req.headers : ', req.headers);
       const authHeader = req.headers['authorization'] || req.headers['Authorization'];
-      
+      console.log('authHeader : ', authHeader);
       if (!authHeader) {
-          return res.status(401).json({ error: "Please log in to access" });
+          return res.status(403).json({ error: "Please log in to access" });
       }
       
       // Remove any quotes from the token
