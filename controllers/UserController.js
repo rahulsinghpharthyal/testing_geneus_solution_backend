@@ -26,14 +26,12 @@ const loginUser = async (req, res) => {
     if (!password) return res.status(400).json({ error: "Password is required" });
 
     const user = await User.findOne({ email }).exec();
-    console.log("User fetched:", user);
 
     if (!user) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
 
     const isPasswordValid = bcryptjs.compareSync(password, user.password);
-    console.log("Is Password Valid:", isPasswordValid); 
 
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid Email or Password" });
@@ -41,15 +39,14 @@ const loginUser = async (req, res) => {
   
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
-    console.log("refresh Token:", refreshToken)
+
     const updatedData = await User.findOneAndUpdate({email},{refreshToken:refreshToken},{new:true})
-    console.log('updatedData',updatedData)
 
     const token = new Token({token : refreshToken})
     await token.save();
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+    res.cookie('accessToken', accessToken, { httpOnly: true,sameSite:'none',secure: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true,sameSite:'none',secure: true });
      
       return res.status(200).json({
         message: 'Logged in successfully',
@@ -92,7 +89,7 @@ const login = async (req, res) => {
       res.cookie("token", token, {
         maxAge: 1000 * 60 * 5,
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         secure: true,
       });
       const dbToken = new Token({ token });
