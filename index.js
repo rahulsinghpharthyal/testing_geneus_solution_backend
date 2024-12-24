@@ -20,13 +20,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://geneus-web.onrender.com/"
+];
 // Set middleware of CORS 
 app.use((req, res, next) => {
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.FRONTEND_URL
-    );
+  //  res.setHeader(
+   //   "Access-Control-Allow-Origin",
+    //  process.env.FRONTEND_URL
+    //);
+    const origin = req.headers.origin;
+
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
