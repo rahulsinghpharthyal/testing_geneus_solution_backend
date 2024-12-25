@@ -30,12 +30,13 @@ app.use((req, res, next) => {
    //   "Access-Control-Allow-Origin",
     //  process.env.FRONTEND_URL
     //);
-    const origin = req.headers.origin;
+    /*const origin = req.headers.origin;
     console.log("=== origin "+origin);
     if (allowedOrigins.includes(origin)) {
       console.log("===allowing origin "+origin);
       res.setHeader("Access-Control-Allow-Origin", origin);
-    }
+    }*/
+  res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
