@@ -22,12 +22,13 @@ const app = express();
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  process.env.FRONTEND_URL1,
-  process.env.FRONTEND_URL2,
 ];
 
 // Set middleware of CORS 
 app.use((req, res, next) => {
+
+    console.log("Request Origin: ", req.headers.origin);
+
     const origin = req.headers.origin;
 
     // Check if the origin is in the allowed list
