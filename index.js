@@ -1,10 +1,9 @@
-import cors from "cors";
+import "dotenv/config";
+// import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import { readdirSync } from "fs";
 import morgan from "morgan";
-import dotenv from "dotenv";
-dotenv.config();
 import cookieParser from "cookie-parser";
 import path from "path";
 import fs from "fs";
@@ -12,7 +11,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path'; 
 
 
-import './db/Connect.js'
+import connectDB from './db/Connect.js'
 
 
 // Manually create __dirname
@@ -21,12 +20,20 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL1,
+  process.env.FRONTEND_URL2,
+];
+
 // Set middleware of CORS 
 app.use((req, res, next) => {
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.FRONTEND_URL
-    );
+    const origin = req.headers.origin;
+
+    // Check if the origin is in the allowed list
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
@@ -62,11 +69,7 @@ app.use(morgan("combined", { stream: accessLogStream }));
 
 // Start the server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () =>
-    console.log(`Server is running successfully on PORT ${PORT}`)
-);
-
-mongoose
-    .connect(process.env.DATABASE)
-    .then(() => console.log("DB Connected Successfully"))
-    .catch((err) => console.log("DB Connection err =>", err));
+app.listen(PORT, async() =>{
+  await connectDB();
+  console.log(`Server is running successfully on PORT ${PORT}`)
+});
