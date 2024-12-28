@@ -20,33 +20,6 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-/*const allowedOrigins = [
-  process.env.FRONTEND_URL,
-];
-
-
-app.use((req, res, next) => {
-
-    const origin = req.headers.origin;
-
-    if (allowedOrigins.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-    }
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Content-Type-Options, Accept, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", true);
-    res.setHeader("Access-Control-Allow-Private-Network", true);
-    res.setHeader("Access-Control-Max-Age", 7200);
-  
-    next();
-});*/
-
 // Configure CORS options
 const corsOptions = {
   origin: [process.env.FRONTEND_URL,process.env.FRONTEND_URL1],
@@ -91,6 +64,7 @@ app.use(morgan("combined", { stream: accessLogStream }));
 
 // Start the server
 const PORT = process.env.PORT || 8000;
+
 app.listen(PORT, async() =>{
   await connectDB();
   console.log(`Server is running successfully on PORT ${PORT}`)
