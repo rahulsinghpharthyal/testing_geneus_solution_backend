@@ -1,10 +1,9 @@
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import { readdirSync } from "fs";
 import morgan from "morgan";
-import dotenv from "dotenv";
-dotenv.config();
 import cookieParser from "cookie-parser";
 import path from "path";
 import fs from "fs";
@@ -12,7 +11,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path'; 
 
 
-import './db/Connect.js'
+import connectDB from './db/Connect.js'
 
 
 // Manually create __dirname
@@ -20,37 +19,30 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "https://geneus-web.onrender.com/"
-];
-// Set middleware of CORS 
-app.use((req, res, next) => {
-  //  res.setHeader(
-   //   "Access-Control-Allow-Origin",
-    //  process.env.FRONTEND_URL
-    //);
-    /*const origin = req.headers.origin;
-    console.log("=== origin "+origin);
-    if (allowedOrigins.includes(origin)) {
-      console.log("===allowing origin "+origin);
-      res.setHeader("Access-Control-Allow-Origin", origin);
-    }*/
-  res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Content-Type-Options, Accept, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", true);
-    res.setHeader("Access-Control-Allow-Private-Network", true);
-    res.setHeader("Access-Control-Max-Age", 7200);
-  
-    next();
-});
+
+// Configure CORS options
+const corsOptions = {
+  origin: [process.env.FRONTEND_URL,process.env.FRONTEND_URL1],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE',
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Content-Type-Options',
+    'Accept',
+    'X-Requested-With',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers',
+  ],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204, 
+  maxAge: 7200,
+};
+
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -72,11 +64,8 @@ app.use(morgan("combined", { stream: accessLogStream }));
 
 // Start the server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () =>
-    console.log(`Server is running successfully on PORT ${PORT}`)
-);
 
-mongoose
-    .connect(process.env.DATABASE)
-    .then(() => console.log("DB Connected Successfully"))
-    .catch((err) => console.log("DB Connection err =>", err));
+app.listen(PORT, async() =>{
+  await connectDB();
+  console.log(`Server is running successfully on PORT ${PORT}`)
+});
