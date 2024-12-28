@@ -1,5 +1,5 @@
 import "dotenv/config";
-// import cors from "cors";
+import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import { readdirSync } from "fs";
@@ -20,18 +20,15 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-const allowedOrigins = [
+/*const allowedOrigins = [
   process.env.FRONTEND_URL,
 ];
 
-// Set middleware of CORS 
-app.use((req, res, next) => {
 
-    console.log("Request Origin: ", req.headers.origin);
+app.use((req, res, next) => {
 
     const origin = req.headers.origin;
 
-    // Check if the origin is in the allowed list
     if (allowedOrigins.includes(origin)) {
       res.setHeader("Access-Control-Allow-Origin", origin);
     }
@@ -48,7 +45,31 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Max-Age", 7200);
   
     next();
-});
+});*/
+
+// Configure CORS options
+const corsOptions = {
+  origin: [process.env.FRONTEND_URL,process.env.FRONTEND_URL1],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE',
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Content-Type-Options',
+    'Accept',
+    'X-Requested-With',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers',
+  ],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204, 
+  maxAge: 7200,
+};
+
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json());
