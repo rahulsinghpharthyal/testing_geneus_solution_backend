@@ -1,7 +1,8 @@
+import fetch from "node-fetch";
+global.fetch = fetch;
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
-import mongoose from "mongoose";
 import { readdirSync } from "fs";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
@@ -9,7 +10,6 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url'; 
 import { dirname } from 'path'; 
-
 
 import connectDB from './db/Connect.js'
 
@@ -67,6 +67,14 @@ const corsOptions = {
   maxAge: 7200,
 };
 
+// import aj from "./utilities/ArcjectSetup/arcjetConfig.js";
+
+// // Middleware to use Arcjet for all routes
+// app.use((req, res, next) => {
+//   aj.track(req)
+//     .then(() => next()) // Continue to next middleware if allowed
+//     .catch((err) => res.status(403).json({ error: err.message })); // Block request if violated
+// });
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
@@ -91,7 +99,7 @@ app.use(morgan("combined", { stream: accessLogStream }));
 
 // Start the server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, async() =>{
+app.listen(PORT,"0.0.0.0", async() =>{
   await connectDB();
   console.log(`Server is running successfully on PORT ${PORT}`)
 });

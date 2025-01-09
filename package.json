@@ -5,11 +5,12 @@
     "type": "module",
     "scripts": {
         "start": "node index.js",
-        "run_dev": "nodemon index.js"
+        "dev": "nodemon index.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@arcjet/node": "^1.0.0-alpha.34",
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.20.2",
         "cookie-parser": "^1.4.7",
