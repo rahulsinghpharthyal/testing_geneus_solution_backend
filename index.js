@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-global.fetch = fetch;
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
@@ -19,33 +17,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-
-/*const allowedOrigins = [
-  process.env.FRONTEND_URL,
-];
-
-
-app.use((req, res, next) => {
-
-    const origin = req.headers.origin;
-
-    if (allowedOrigins.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-    }
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Content-Type-Options, Accept, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", true);
-    res.setHeader("Access-Control-Allow-Private-Network", true);
-    res.setHeader("Access-Control-Max-Age", 7200);
-  
-    next();
-});*/
 
 // Configure CORS options
 const corsOptions = {
