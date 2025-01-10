@@ -67,15 +67,6 @@ const corsOptions = {
   maxAge: 7200,
 };
 
-// import aj from "./utilities/ArcjectSetup/arcjetConfig.js";
-
-// // Middleware to use Arcjet for all routes
-// app.use((req, res, next) => {
-//   aj.track(req)
-//     .then(() => next()) // Continue to next middleware if allowed
-//     .catch((err) => res.status(403).json({ error: err.message })); // Block request if violated
-// });
-
 // Apply CORS middleware
 app.use(cors(corsOptions));
 
