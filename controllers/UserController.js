@@ -272,15 +272,36 @@ export const createTokens = (user) => {
   }
 };
 
+import aj from '../utilities/ArcjectSetup/arcjetConfig.js';
+
 const signup = async (req, res) => {
   try {
     const { name, email, password, mobile  } = req.body;
+
     if (!name) return res.status(400).json({ error: "Name is required" });
+    
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      return res.status(400).json({ error: "Valid email is required" });
-    if (!password || password.length < 8) {
-      return res.status(400).json({ error: "Password is required and must be at least 8 characters" });
+    return res.status(400).json({ error: "Valid email is required" });
+  
+  if (!password || password.length < 8) {
+    return res.status(400).json({ error: "Password is required and must be at least 8 characters" });
+  }
+
+    const decision = await aj.protect(req, {
+      email:email,
+    });
+
+    console.log("Decision:", decision);
+    
+    
+    if (decision.isDenied()) {
+      if (decision.reason.isEmail()) {
+        return res.status(400).json({ error: 'invalid email' });
+      }else{
+        return res.status(400).json({ error: 'Forbidden' });
+      }
     }
+
     if (!mobile) return res.status(400).json({ error: "Mobile number is required" });
 
     const userExists = await User.findOne({ email }).exec();
@@ -324,11 +345,11 @@ const signup = async (req, res) => {
       // Generate tokens
       let accessToken = generateAccessToken(newUser);
       let refreshToken = generateRefreshToken(newUser);
-      console.log("Access Token:", accessToken, "Refresh Token:", refreshToken);
+      // console.log("Access Token:", accessToken, "Refresh Token:", refreshToken);
 
       // Return success response
       return res.status(200).json({
-          message: 'User registered successfully',
+          message: 'your registration has been successful',
           user: {
               id: newUser._id,
               name: newUser.name,

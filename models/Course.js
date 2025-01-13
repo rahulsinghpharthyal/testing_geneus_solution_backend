@@ -5,7 +5,7 @@ const courseSchema = new mongoose.Schema(
     id: Number,
     title: String,
     img: String,
-    description: String,
+    description: [{title:String,details:String}],
     level: String,
     price: Number,
     discount_price: Number,
@@ -27,6 +27,10 @@ const courseSchema = new mongoose.Schema(
     },
     whoitsfor: {
       type: [String],
+    },
+    enabled: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }
