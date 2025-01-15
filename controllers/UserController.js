@@ -1,3 +1,4 @@
+import Query from '../models/Query.js';
 import User from '../models/User.js';
 import Detail from '../models/FoodDetails.js';
 import Food from '../models/Food.js';
@@ -185,25 +186,25 @@ const logut = async (req, res) => {
 
 const contact = async (req, res) => {
   try {
-    const { name, email, contact, message } = req.body;
+    const { name, email,subject, message } = req.body;
     if (!name) return res.status(400).json({ error: "Name is required" });
     if (!email) return res.status(400).json({ error: "Email is required" });
-    if (!contact) return res.status(400).json({ error: "Contact is required" });
+    if (!subject) return res.status(400).json({ error: "Contact is required" });
     if (!message) return res.status(400).json({ error: "Please mention your query" });
     const query = new Query({
       name,
       email,
-      contact,
+      subject,
       message,
     });
 
     const currentDate = new Date();
     const newQuery =  "Geneus Solutions New Contact Query: "+name;
-    const subject = `${newQuery} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()} - mm/dd/yyyy`;
+    const emailSubject = `${newQuery} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()} - mm/dd/yyyy`;
 
 
 
-sendEmail(process.env.toAdmin, email, subject, `Name: ${name}\nEmail: ${email}\nContact: ${contact}\nMessage: ${message}`);
+    sendEmail(process.env.toAdmin, email, emailSubject, `Name: ${name}\nEmail: ${email}\nMessage: ${message}`);
   
 
     await query.save();
@@ -228,7 +229,7 @@ const forgotPassword = async (req, res) => {
   user.resetPasswordToken = token;
   user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
   await user.save();
-  const resetURL = process.env.FRONTEND_URL + `/reset-password?token=${token}`;
+  const resetURL = process.env.FRONTEND_URL + `/reset-password/${token}`;
 
  
 sendEmail(email, process.env.toAdmin, 'Password Reset', `You are receiving this because you  have requested to reset the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetURL}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`)
@@ -242,7 +243,8 @@ sendEmail(email, process.env.toAdmin, 'Password Reset', `You are receiving this 
 };
 
 const resetPassword = async (req, res) => {
- const { token, password } = req.body;
+  const { token } = req.params;
+ const { password } = req.body;
  const user = await User.findOne({
    resetPasswordToken: token,
    resetPasswordExpires: { $gt: Date.now() }
