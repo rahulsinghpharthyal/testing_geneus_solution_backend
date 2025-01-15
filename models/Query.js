@@ -23,8 +23,13 @@ const querySchema = new Schema(
         'Please fill a valid Email',
       ],
     },
-    contact: {
-      type: Number,
+    // contact: {
+    //   type: Number,
+    //   trim: true,
+    //   required: true,
+    // },
+    subject: {
+      type: String,
       trim: true,
       required: true,
     },
