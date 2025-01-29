@@ -1,7 +1,5 @@
 import express from "express";
-import Cart from "../models/Cart.js";
-import User from "../models/User.js";
-import {addtoCart, getCart, cartEmpty, cartDelete} from "../controllers/CartController.js"
+import {addtoCart, getCart, cartDelete} from "../controllers/CartController.js"
 const router = express.Router();
 
 router.post("/addtocart", addtoCart);
