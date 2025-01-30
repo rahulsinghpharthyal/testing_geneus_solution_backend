@@ -1,10 +1,8 @@
-import express from "express";
 import shortid from "shortid";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import Payment from "../models/Payment.js";
 import User from "../models/User.js";
-import dotenv from "dotenv";
 import sendEmail from "./EmailController.js";
 import { configDotenv } from 'dotenv';
 configDotenv()
@@ -24,21 +22,12 @@ const postRazorpay =  async (req, res) => {
         receipt: shortid.generate(),
         payment_capture,
       };
-  
-      
-  
-      try {
         
         const currentDate = new Date();
         const orderStatus = "Geneus Solutions New Order Initited";
         const updatedOrderStatus = `${orderStatus} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
-  
-    
-    sendEmail(process.env.toAdmin, process.env.email, updatedOrderStatus, `Name: ${req.body.username}\namount: ${amount}\nreceipt: ${options.receipt}`);
-       
-      } catch (err) {
-        return res.status(400).json({ error: err.message });
-      }
+        
+        sendEmail(process.env.toAdmin, process.env.email, updatedOrderStatus, `Name: ${req.body.username}\namount: ${amount}\nreceipt: ${options.receipt}`);
   
       const razorpay = new Razorpay({
         key_id: process.env.RAZORPAY_ID,

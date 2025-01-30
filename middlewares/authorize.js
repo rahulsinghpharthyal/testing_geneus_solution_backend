@@ -1,8 +1,8 @@
 import User from '../models/User.js';
 
 const Authorise = (role) => {
-  
-    return async(req,res,next) => {
+        
+        return async(req,res,next) => {
 
         const foundUser = await User.findOne({ _id: req.user.userId });
         

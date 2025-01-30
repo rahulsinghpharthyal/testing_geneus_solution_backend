@@ -1,58 +1,42 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js';
-import Token from "../models/Token.js";
 import Visitor from "../models/Visitor.js";
 import { configDotenv } from 'dotenv';
 configDotenv()
 const Auth = (req, res, next) => {
-  try {
-
-      const authHeader = req.headers['authorization'] || req.headers['Authorization'];
-      // console.log('authHeader : ', authHeader);
-      if (!authHeader) {
-          return res.status(403).json({ error: "Please log in to access" });
-      }
-      
-      // Remove any quotes from the token
-      const token = authHeader.split(' ')[1].replace(/"/g, '');
-      
-      if (!token) {
-          return res.status(401).json({ error: "Please log in to access" });
-      }
-
-      try {
-          const decodedData = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
-          
-          if (!decodedData.id) {
-              return res.status(403).json({ error: "Invalid token" });
-          }
-          
-          req.user = { userId: decodedData.id, role: decodedData.role };
-          next();
-      } catch (verifyError) {
-          console.error('Token verification failed:', verifyError);
-          return res.status(403).json({ error: "Invalid token" });
-      }
-  } catch (error) {
-      console.log('error : ', error);
-      return res.status(403).json({ error: "Forbidden" });
-  }
+    try {
+        const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+        // console.log('authHeader : ', authHeader);
+        if (!authHeader) {
+            return res.status(403).json({ error: "Please log in to access" });
+        }
+        
+        // Remove any quotes from the token
+        const token = authHeader.split(' ')[1].replace(/"/g, '');
+        
+        if (!token) {
+            return res.status(401).json({ error: "Please log in to access" });
+        }
+        const decodedData = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
+        
+        if (!decodedData.id) {
+            return res.status(403).json({ error: "Invalid token" });
+        }
+        
+        req.user = { userId: decodedData.id, role: decodedData.role };
+        next();
+    } catch (verifyError) {
+        console.error('Token verification failed:', verifyError);
+        return res.status(403).json({ error: "Forbidden" });
+    }
 };
-const AdminAuth = (req, res, next) => {
-  const {role} = req.user
-  console.log(role)
-  if (role === 'admin') {
-    next()
-  }else{
-    return res.status(403).json({ error: "Forbidden" });
-  }
-};
+
 
 const apiVisitors = async (req, res) => {
-  const { ip, city } = req.body;
-  const newVisitor = new Visitor({ ip, city });
-
+  
   try {
+    const { ip, city } = req.body;
+    const newVisitor = new Visitor({ ip, city });
     await newVisitor.save();
     res.status(201).send('Visitor data saved successfully');
   } catch (error) {
@@ -70,11 +54,11 @@ const generateRefreshToken = (user) => {
 };
 
 const refreshTokenHandler = async (req, res) => {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) return res.sendStatus(401);
-
-    try {
+  
+  try {
+      const { refreshToken } = req.body;
+    
+      if (!refreshToken) return res.sendStatus(401);
         console.log('refreshToken : ', refreshToken);
         const user = await User.findOne({ refreshToken });
         if (!user) return res.sendStatus(403);
@@ -92,10 +76,10 @@ const refreshTokenHandler = async (req, res) => {
 
 
 const visitors = async (req, res) => {
-  const { ip, city } = req.body;
-  const newVisitor = new Visitor({ ip, city });
-
+  
   try {
+    const { ip, city } = req.body;
+    const newVisitor = new Visitor({ ip, city });
     await newVisitor.save();
     res.status(201).send('Visitor data saved successfully');
   } catch (error) {
@@ -103,6 +87,6 @@ const visitors = async (req, res) => {
   }
 }
 
-export { AdminAuth, generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, visitors };
+export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler };
 
 
