@@ -2,12 +2,6 @@ import express from 'express';
 import {
   loginUser,
   getUser,
-  logut,
-  contact,
-  forgotPassword,
-  resetPassword,
-  login,
-  enquiry,
   signup,
 newUserRegister,
 userAuth,
