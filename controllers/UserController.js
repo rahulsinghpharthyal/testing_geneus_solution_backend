@@ -225,8 +225,8 @@ const contact = async (req, res) => {
     const emailSubject = `${newQuery} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()} - mm/dd/yyyy`;
 
     sendEmail(
-      process.env.toAdmin,
       email,
+      process.env.toAdmin,
       emailSubject,
       `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
     );
@@ -385,7 +385,7 @@ const signup = async (req, res) => {
     const updatedRegStatus = `${registrationRequest} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
 
     await sendEmail(
-      email,
+      process.env.email,
       process.env.toAdmin,
       updatedRegStatus,
       `New user registered: Name: ${name}, Email: ${email}, Mobile: ${mobile}`
