@@ -259,8 +259,8 @@ const forgotPassword = async (req, res) => {
     const resetURL = process.env.FRONTEND_URL + `/reset-password/${token}`;
 
     sendEmail(
-      email,
       process.env.toAdmin,
+      email,
       "Password Reset",
       `You are receiving this because you  have requested to reset the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetURL}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
     );
