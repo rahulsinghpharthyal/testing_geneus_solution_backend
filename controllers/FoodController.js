@@ -7,9 +7,9 @@ import { configDotenv } from 'dotenv';
 
 configDotenv()
 const postFood =  async (req, res) => {
-    const { user, breakfast, lunch, dinner } = req.body;
-
-    try {
+  
+  try {
+      const { user, breakfast, lunch, dinner } = req.body;
         const userExists = await User.findById(user);
         if (!userExists) {
             return res.status(404).json({ message: "User not found" });
@@ -81,14 +81,14 @@ const postFood =  async (req, res) => {
 }
  
 const getFoodById =  async (req, res) => {
-    const { id } = req.params;
-console.log(id)
   
-    if (!mongoose.isValidObjectId(id)) {
-        return res.status(400).json({ message: "Invalid user ID" });
-    }
+  try {
 
-    try {
+        const { id } = req.params;
+      
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
      
         const foodData = await Food.findOne({ user: id })
             .populate('user')  
@@ -148,10 +148,11 @@ console.log(id)
 }
 
 const updateFood = async (req, res) => {
-    const { userId } = req.user; 
-    const { meal, quantity, id } = req.body; 
   
-    try {
+  try {
+    
+      const { userId } = req.user; 
+      const { meal, quantity, id } = req.body;
 
       let userMeals = await Food.findOne({ user: userId });
       
@@ -200,10 +201,10 @@ const updateFood = async (req, res) => {
   }
 
   const removeFood = async (req, res) => {
-    const { userId } = req.user; 
-    const { id } = req.body; 
-  
+    
     try {
+      const { userId } = req.user; 
+      const { id } = req.body; 
       let userMeals = await Food.findOne({ user: userId });      
       if (!userMeals) {
         return res.status(404).json({ message: 'User meal data not found' });

@@ -1,14 +1,14 @@
 import nodemailer from "nodemailer";
 import { configDotenv } from 'dotenv';
 configDotenv()
-const sendEmail = async (receiver, sender, subject, text) => {
+const sendEmail = async (sender, receiver, subject, text) => {
     try {
 
       let transporter = nodemailer.createTransport({
-        service: 'gmail',
+        service: 'Gmail',
         auth: {
-            user: process.env.toAdmin,
-            pass: process.env.toPassword,
+            user: process.env.email,
+            pass: process.env.password,
         },
       });
   
