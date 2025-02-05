@@ -1,4 +1,3 @@
-import express from "express";
 import Cart from "../models/Cart.js";
 import User from "../models/User.js";
 import { configDotenv } from 'dotenv';
@@ -6,7 +5,6 @@ configDotenv()
 const addtoCart = async (req, res) => {
     try {
       const { userId, courseItem } = req.body;
-      
       if (!userId) {
         return res.status(401).send({ message: "User ID is missing" });
       }

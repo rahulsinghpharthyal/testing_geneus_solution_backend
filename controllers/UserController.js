@@ -48,7 +48,6 @@ const loginUser = async (req, res) => {
 
     res.cookie('accessToken', accessToken, { httpOnly: true,sameSite:'none',secure: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true,sameSite:'none',secure: true });
-     
       return res.status(200).json({
         message: 'Logged in successfully',
         user: {
@@ -169,7 +168,7 @@ const getUser = async (req, res) => {
 
 const logut = async (req, res) => {
   try {
-    // console.log("Logout route called : ",req.cookies);
+    console.log("Logout route called : ",req.cookies);
     const refreshToken = req.cookies.refreshToken;
     console.log("Refresh Token:", refreshToken);
     // const refreshToken = await Token.deleteOne({ refreshToken });
@@ -178,7 +177,8 @@ const logut = async (req, res) => {
 
     console.log("Refresh Token Deleted:", updatedData);
     res.clearCookie("refreshToken");
-    return res.status(204).json({ message: "Logout successful!" });
+    console.log('this is logout');
+    return res.status(200).json({ message: "Logout successful!" });
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
