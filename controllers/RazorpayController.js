@@ -98,7 +98,7 @@ const paymentVerification = async (req, res) => {
         cart_details: cart_details,
       });
       // 67822d1c7fa62ea6bd76cf15
-      const user = await User.findOne({userid: user_id});
+      const user = await User.findOne({_id: user_id});
       //console.log(user);
       cart_details.forEach((item) => {
         user.courses.push(item.course_id);
