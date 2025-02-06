@@ -52,29 +52,20 @@ const loginUser = async (req, res) => {
     const token = new Token({ token: refreshToken });
     await token.save();
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-    });
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-    });
-
-    return res.status(200).json({
+    res.cookie('accessToken', accessToken, { httpOnly: true,sameSite:'none',secure: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true,sameSite:'none',secure: true });
+      return res.status(200).json({
       message: "Logged in successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        plan: user.plan,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          plan: user.plan,
         role: user.role,
-      },
-      accessToken,
+        },
+        accessToken,
       refreshToken,
-    });
+      });
   } catch (error) {
     console.error("Authentication Error:", error);
     return res.status(500).json({ error: "Authentication Failed!" });
@@ -87,72 +78,72 @@ const login = async (req, res) => {
     if (!password)
       return res.status(400).json({ error: "Password is required" });
     if (!email) return res.status(400).json({ error: "Email is required" });
-    const user = await User.findOne({ email }).exec();
+        const user = await User.findOne({ email }).exec();
     if (!user || !bcryptjs.compareSync(password, user.password)) {
       return res.status(400).json({ error: "Invalid Email or Password" });
     }
     const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_SECRET_KEY, {
       expiresIn: "15m",
     });
-    const refreshToken = jwt.sign(
-      user.toJSON(),
-      process.env.REFRESH_SECRET_KEY
-    );
+      const refreshToken = jwt.sign(
+        user.toJSON(),
+        process.env.REFRESH_SECRET_KEY
+      );
     const token = new Token({ refreshToken });
-    await token.save();
-    res.cookie("token", token, {
-      maxAge: 1000 * 60 * 5,
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-    });
-    const dbToken = new Token({ token });
-    const newToken = await dbToken.save();
-    return res.status(200).json({
-      accessToken,
-      refreshToken,
-      email: user.email,
-      name: user.name,
-      id: user.id,
-    });
-  } catch (error) {
+      await token.save();
+      res.cookie("token", token, {
+        maxAge: 1000 * 60 * 5,
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      const dbToken = new Token({ token });
+      const newToken = await dbToken.save();
+      return res.status(200).json({
+        accessToken,
+        refreshToken,
+        email: user.email,
+        name: user.name,
+        id: user.id,
+      });
+      } catch (error) {
     return res.status(500).json({ error: "Authentication Failed!" });
   }
 };
 
 const getUser = async (req, res) => {
   try {
-    const { userId } = req.user;
-    // Populate the references for details, food, and plan
-    const user = await User.findById(userId)
+  const { userId } = req.user;
+      // Populate the references for details, food, and plan
+      const user = await User.findById(userId)
       .populate("details")
       .populate("food")
       .populate("plan");
 
-    if (!user) {
+      if (!user) {
       return res.status(404).json({ error: "User not found" });
-    }
+      }
 
-    // Check if populated fields are available
-    if (!user.details || !user.food || !user.plan) {
+      // Check if populated fields are available
+      if (!user.details || !user.food || !user.plan) {
       console.log(
         "Population error: One or more referenced fields are missing."
       );
-      return res.status(500).json({ error: "Failed to populate user data" });
-    }
+          return res.status(500).json({ error: "Failed to populate user data" });
+      }
 
-    const totalCalories = user.details.caloriegoal;
-    const goal = user.details.goal;
+      const totalCalories = user.details.caloriegoal;
+      const goal = user.details.goal;
 
-    // Macronutrient distribution based on the goal
-    const macronutrientDistribution = {
+      // Macronutrient distribution based on the goal
+      const macronutrientDistribution = {
       "Lose Weight": { protein: 30, carbs: 40, fat: 30 },
       "Gain Muscle": { protein: 35, carbs: 40, fat: 25 },
       "Athletic Performance": { protein: 30, carbs: 50, fat: 20 },
       "Maintain Weight": { protein: 30, carbs: 45, fat: 25 },
       "Gain Weight": { protein: 20, carbs: 55, fat: 25 },
       "Manage Stress": { protein: 30, carbs: 25, fat: 45 },
-    };
+      };
 
     const {
       protein: proteinPercent,
@@ -160,10 +151,10 @@ const getUser = async (req, res) => {
       fat: fatPercent,
     } = macronutrientDistribution[goal] || { protein: 20, carbs: 50, fat: 30 };
 
-    // Calculate macronutrients in grams
-    const proteinGrams = (totalCalories * (proteinPercent / 100)) / 4;
-    const carbsGrams = (totalCalories * (carbsPercent / 100)) / 4;
-    const fatGrams = (totalCalories * (fatPercent / 100)) / 9;
+      // Calculate macronutrients in grams
+      const proteinGrams = (totalCalories * (proteinPercent / 100)) / 4;
+      const carbsGrams = (totalCalories * (carbsPercent / 100)) / 4;
+      const fatGrams = (totalCalories * (fatPercent / 100)) / 9;
 
     console.log(
       `Calculated Macronutrients - Protein: ${Math.round(
@@ -171,14 +162,14 @@ const getUser = async (req, res) => {
       )}g, Carbs: ${Math.round(carbsGrams)}g, Fat: ${Math.round(fatGrams)}g`
     );
 
-    res.status(201).json({
-      user,
-      macronutrients: {
-        protein: Math.round(proteinGrams),
-        carbs: Math.round(carbsGrams),
+      res.status(201).json({
+          user,
+          macronutrients: {
+              protein: Math.round(proteinGrams),
+              carbs: Math.round(carbsGrams),
         fat: Math.round(fatGrams),
       },
-    });
+      });
   } catch (error) {
     console.error("Server error: ", error);
     res.status(500).json({ message: "Server error", error });
@@ -187,7 +178,7 @@ const getUser = async (req, res) => {
 
 const logut = async (req, res) => {
   try {
-    // console.log("Logout route called : ",req.cookies);
+    console.log("Logout route called : ",req.cookies);
     const refreshToken = req.cookies.refreshToken;
     // const refreshToken = await Token.deleteOne({ refreshToken });
     // delete the refresh token from the database
@@ -199,7 +190,8 @@ const logut = async (req, res) => {
 
     console.log("Refresh Token Deleted:", updatedData);
     res.clearCookie("refreshToken");
-    return res.status(204).json({ message: "Logout successful!" });
+    console.log('this is logout');
+    return res.status(200).json({ message: "Logout successful!" });
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
@@ -240,23 +232,23 @@ const contact = async (req, res) => {
 };
 const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+  const { email } = req.body;
+  const user = await User.findOne({ email });
 
-    if (!user) {
+  if (!user) {
       return res
         .status(400)
         .send(
           "No user with that email address found. Please provide a valid email address"
         );
-    }
+  }
 
     const token = crypto.randomBytes(20).toString("hex");
 
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await user.save();
-    const resetURL = process.env.FRONTEND_URL + `/reset-password/${token}`;
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  await user.save();
+  const resetURL = process.env.FRONTEND_URL + `/reset-password/${token}`;
 
     sendEmail(
       process.env.toAdmin,
@@ -275,24 +267,24 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     
-    const { token } = req.params;
-    const { password } = req.body;
-  const user = await User.findOne({
-    resetPasswordToken: token,
+  const { token } = req.params;
+ const { password } = req.body;
+ const user = await User.findOne({
+   resetPasswordToken: token,
     resetPasswordExpires: { $gt: Date.now() },
-  });
+ });
 
-  if (!user) {
+ if (!user) {
     return res
       .status(400)
       .send("Password reset token is invalid or has expired.");
-  }
+ }
   
-  // Hash the new password and save it
-  user.password = await bcryptjs.hash(password, 12);
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  await user.save();
+ // Hash the new password and save it
+ user.password = await bcryptjs.hash(password, 12);
+ user.resetPasswordToken = undefined;
+ user.resetPasswordExpires = undefined;
+ await user.save();
   
   res.status(200).send("Password has been reset successfully. Please log in");
 } catch (error) {
@@ -315,20 +307,20 @@ export const createTokens = (user) => {
 
 const signup = async (req, res) => {
   try {
-    const { name, email, password, mobile } = req.body;
+    const { name, email, password, mobile  } = req.body;
 
     if (!name) return res.status(400).json({ error: "Name is required" });
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      return res.status(400).json({ error: "Valid email is required" });
+    return res.status(400).json({ error: "Valid email is required" });
 
-    if (!password || password.length < 8) {
+  if (!password || password.length < 8) {
       return res
         .status(400)
         .json({
           error: "Password is required and must be at least 8 characters",
         });
-    }
+  }
 
     const decision = await aj.protect(req, {
       email: email,
@@ -391,50 +383,50 @@ const signup = async (req, res) => {
       `New user registered: Name: ${name}, Email: ${email}, Mobile: ${mobile}`
     );
 
-    // Generate tokens
-    let accessToken = generateAccessToken(newUser);
-    let refreshToken = generateRefreshToken(newUser);
-    // console.log("Access Token:", accessToken, "Refresh Token:", refreshToken);
+      // Generate tokens
+      let accessToken = generateAccessToken(newUser);
+      let refreshToken = generateRefreshToken(newUser);
+      // console.log("Access Token:", accessToken, "Refresh Token:", refreshToken);
 
-    // Return success response
-    return res.status(200).json({
+      // Return success response
+      return res.status(200).json({
       message: "your registration has been successful",
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        details: newUser.details,
-        food: newUser.food,
-        number: newUser.mobile, // Ensure this is the correct property
-        plan: newUser.plan,
-      },
-      accessToken,
+          user: {
+              id: newUser._id,
+              name: newUser.name,
+              email: newUser.email,
+              details: newUser.details,
+              food: newUser.food,
+              number: newUser.mobile,  // Ensure this is the correct property
+              plan: newUser.plan,
+          },
+          accessToken,
       refreshToken,
-    });
+      });
   } catch (err) {
-    console.log("Error occurred", err);
+      console.log("Error occurred", err);
     return res
       .status(500)
       .json({ error: "An error occurred! Please try again later." });
   }
 };
 
-const enquiry = async (req, res) => {
+const enquiry =  async (req, res) => {
   try {
-    const { name, email, contact } = req.body;
-    if (!name) return res.status(400).send("Name is required");
-    if (!email) return res.status(400).send("Email is required");
-    if (!contact) return res.status(400).send("Contact is required");
-    const enquiry = new Enquiry({
-      name,
-      email,
-      contact,
-    });
-    await enquiry.save();
-    return res.status(200).json({ ok: true });
+      const { name, email, contact } = req.body;
+      if (!name) return res.status(400).send("Name is required");
+      if (!email) return res.status(400).send("Email is required");
+      if (!contact) return res.status(400).send("Contact is required");
+      const enquiry = new Enquiry({
+          name,
+          email,
+          contact,
+      });
+      await enquiry.save();
+      return res.status(200).json({ ok: true });
   } catch (err) {
-    console.log(err);
-    return res.status(400).send("Error occurred! Please try again later");
+      console.log(err);
+      return res.status(400).send("Error occurred! Please try again later");
   }
 };
 
@@ -500,7 +492,7 @@ const newUserRegister = async (req, res) => {
 
     console.log("===newUserRegister called====");
     // Send the email
-    const newUser = new NewUser({
+      const newUser = new NewUser({
       fullname,
       email,
       mobile,
@@ -518,15 +510,15 @@ const newUserRegister = async (req, res) => {
   }
 };
 export {
-  loginUser,
-  getUser,
-  logut,
-  contact,
-  forgotPassword,
-  resetPassword,
-  login,
-  enquiry,
-  signup,
+    loginUser,
+    getUser,
+    logut,
+    contact,
+    forgotPassword,
+    resetPassword,
+    login,
+    enquiry,
+    signup,
   newUserRegister,
   userAuth,
   validateToken,
