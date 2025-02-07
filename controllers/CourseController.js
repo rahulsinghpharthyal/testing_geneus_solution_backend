@@ -62,23 +62,23 @@ const addCourse = async (req, res) => {
 
 const learning = async (req, res) => {
     try {
+      console.log('htis sis id', req.query);
         const user_id = req.query.user_id;
-        
         if (!user_id) {
             return res.status(400).json({ error: "User ID is required" });
         }
         const user = await User.findById(user_id);
-        
+        console.log('this is user', user)
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
         const user_courses = user.courses;
-        
+        console.log('this is userCourser', user_courses)
         const courses = await Course.find({ _id: { $in: user_courses } });
-        
-        res.status(200).json({ courses: courses });
+        console.log('this is course', courses);
+        return res.status(200).json({ courses: courses });
     } catch (error) {
-        res.status(500).json({ error: "Error fetching courses" });
+       return  res.status(500).json({ error: "Error fetching courses" });
     }
 }
 

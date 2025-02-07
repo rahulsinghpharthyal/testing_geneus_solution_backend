@@ -7,6 +7,7 @@ import sendEmail from "./EmailController.js";
 import { configDotenv } from "dotenv";
 configDotenv();
 const postRazorpay = async (req, res) => {
+  console.log('this is postRazorpay body', req.body)
   try {
     const payment_capture = 1;
     const amount = parseInt(req.body.amount);
@@ -29,8 +30,8 @@ const postRazorpay = async (req, res) => {
       const updatedOrderStatus = `${orderStatus} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
 
       sendEmail(
-        req.body.email,
         process.env.toAdmin,
+        req.body.email,
         updatedOrderStatus,
         `Name: ${req.body.username}\namount: ${amount}\nreceipt: ${options.receipt}`
       );
@@ -42,10 +43,10 @@ const postRazorpay = async (req, res) => {
       key_id: process.env.RAZORPAY_ID,
       key_secret: process.env.RAZORPAY_SECRET,
     });
-    console.log("rezorpay", razorpay);
+    // console.log("rezorpay", razorpay);
 
     const response = await razorpay.orders.create(options);
-    console.log("this is response", response);
+    // console.log("this is response", response);
 
     res.status(200).json({
       id: response.id,
@@ -59,6 +60,7 @@ const postRazorpay = async (req, res) => {
 };
 
 const paymentVerification = async (req, res) => {
+  console.log('this is body payment verification---->', req.body)
   try {
     const razorpay_order_id = req.body.data.razorpay_order_id;
     const razorpay_payment_id = req.body.data.razorpay_payment_id;
@@ -96,6 +98,8 @@ const paymentVerification = async (req, res) => {
         cart_details: cart_details,
       });
       // 67822d1c7fa62ea6bd76cf15
+      console.log('this is cartDetials', cart_details)
+      console.log('this is userId', user_id)
       const user = await User.findOne({_id: user_id});
       //console.log(user);
       cart_details.forEach((item) => {
@@ -106,8 +110,8 @@ const paymentVerification = async (req, res) => {
       //console.log(user.courses);
       
       sendEmail(
-        req.body.data.user_email,
         process.env.toAdmin,
+        req.body.data.user_email,
         updatedOrderStatus,
         `Dear user\n\nThank you for Enrolling the course. We have received the request.\n\nrazorpay_order_id: ${razorpay_order_id}\nrazorpay_payment_id: ${razorpay_payment_id}\nuser_id: ${user_id}. \n\nTo start learning goto https://www.geneussolutions.in/ and click on My Learning on the top right page. Thank you \n\nFor any queries, kindly reach out to us on support@geneussolutions.in. Happy Learning!\n\nThank you and Warm Regards,\nGeneus Solutions\n+91 9148950239`
       );
