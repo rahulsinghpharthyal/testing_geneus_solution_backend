@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const visitorSchema = new mongoose.Schema({
     ip: String,
     city: String,
+    country: String,
     timestamp: { type: Date, default: Date.now },
 });
 

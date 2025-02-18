@@ -87,6 +87,17 @@ const visitors = async (req, res) => {
   }
 }
 
-export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler };
+const getVisitorData = async(req, res)=> {
+  try{
+    const visitorData = await Visitor.find({});
+    // console.log(visitorData);
+    return res.status(200).send({data: visitorData});
+
+  }catch(error){
+    return res.status(500).send("Error geting Visitor data")
+  }
+}
+
+export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, getVisitorData };
 
 

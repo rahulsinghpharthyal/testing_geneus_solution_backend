@@ -101,7 +101,7 @@ const paymentVerification = async (req, res) => {
       console.log('this is cartDetials', cart_details)
       console.log('this is userId', user_id)
       const user = await User.findOne({_id: user_id});
-      //console.log(user);
+      console.log('this is user', user)
       cart_details.forEach((item) => {
         user.courses.push(item.course_id);
       });
