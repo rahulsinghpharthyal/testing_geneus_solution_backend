@@ -1,6 +1,6 @@
 import express from "express";
 import {logut, contact, loginUser,  signup, enquiry, forgotPassword, resetPassword} from '../controllers/UserController.js'
-import { Auth } from '../controllers/AuthController.js';
+import { Auth, getVisitorData } from '../controllers/AuthController.js';
 const router = express.Router();
 
 
@@ -17,5 +17,7 @@ router.post("/enquiry", enquiry);
 router.post("/forgot-password", forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
+
+router.get("/getvisitor", getVisitorData);
 
 export default router;
