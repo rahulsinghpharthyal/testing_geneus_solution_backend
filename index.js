@@ -18,6 +18,9 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
+// for get the ip from the user:-
+app.set('trust proxy', true);
+
 // Configure CORS options
 const corsOptions = {
   origin: [process.env.FRONTEND_URL,process.env.FRONTEND_URL1],
@@ -44,8 +47,8 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(morgan("dev"));
+
 import captureVisitorData from "./middlewares/captureVisitorData.js";
 app.use(captureVisitorData);
 

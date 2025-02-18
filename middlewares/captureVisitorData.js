@@ -4,7 +4,7 @@ import Visitor from '../models/Visitor.js';
 const captureVisitorData = async (req, res, next) => {
     try {
         const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        // console.log('this is ip', ip);
+        console.log('this is ip', ip);
 
         //for testin purposer this code:-
         //     const res = await fetch('https://api64.ipify.org?format=json');
