@@ -18,6 +18,6 @@ router.post("/forgot-password", forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
 
-router.get("/getvisitor", getVisitorData);
+router.get("/getvisitor/:date", getVisitorData);
 
 export default router;
