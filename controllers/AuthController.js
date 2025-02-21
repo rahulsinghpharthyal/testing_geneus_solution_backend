@@ -89,8 +89,17 @@ const visitors = async (req, res) => {
 
 const getVisitorData = async(req, res)=> {
   try{
-    const visitorData = await Visitor.find({});
-    // console.log(visitorData);
+    const {date} = req.params;
+    console.log('this is date', date);
+     // Convert date string to JavaScript Date object because mongodb store the timestamp date in js object
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999); 
+    const visitorData = await Visitor.find({
+      timestamp: { $gte: startOfDay, $lte: endOfDay },
+    });;
+    console.log(visitorData);
     return res.status(200).send({data: visitorData});
 
   }catch(error){
