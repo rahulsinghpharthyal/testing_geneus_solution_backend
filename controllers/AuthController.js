@@ -107,6 +107,25 @@ const getVisitorData = async(req, res)=> {
   }
 }
 
-export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, getVisitorData };
+
+const deleteVistorDataByDate = async(req, res) => {
+  try{
+    const {date} = req.params;
+    console.log('this is date', date);
+     // Convert date string to JavaScript Date object because mongodb store the timestamp date in js object
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999); 
+    const visitorData = await Visitor.deleteMany  ({
+      timestamp: { $gte: startOfDay, $lte: endOfDay },
+    });;
+    return res.status(200).send({message: 'Visitor Data deleted successfully'});
+  }catch(error){
+    return res.status(500).send("Error delete the visitor Data")
+  }
+}
+
+export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, getVisitorData, deleteVistorDataByDate };
 
 
