@@ -89,16 +89,18 @@ const visitors = async (req, res) => {
 
 const getVisitorData = async(req, res)=> {
   try{
-    const {date} = req.params;
-    console.log('this is date', date);
+    const {dateFrom, dateTo} = req.params;
+    console.log('this is date', req.params);
      // Convert date string to JavaScript Date object because mongodb store the timestamp date in js object
-    const startOfDay = new Date(date);
+    const startOfDay = new Date(dateFrom);
     startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00
-    const endOfDay = new Date(date);
+    console.log('startOfDay', startOfDay);
+    const endOfDay = new Date(dateTo);
     endOfDay.setHours(23, 59, 59, 999); 
+    console.log('endOfDay', endOfDay);
     const visitorData = await Visitor.find({
       timestamp: { $gte: startOfDay, $lte: endOfDay },
-    });;
+    });
     console.log(visitorData);
     return res.status(200).send({data: visitorData});
 
@@ -110,22 +112,35 @@ const getVisitorData = async(req, res)=> {
 
 const deleteVistorDataByDate = async(req, res) => {
   try{
-    const {date} = req.params;
-    console.log('this is date', date);
+    const {dateFrom, dateTo} = req.params;
+    console.log('this is date', req.params);
      // Convert date string to JavaScript Date object because mongodb store the timestamp date in js object
-    const startOfDay = new Date(date);
+    const startOfDay = new Date(dateFrom);
     startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00
-    const endOfDay = new Date(date);
+    const endOfDay = new Date(dateTo);
     endOfDay.setHours(23, 59, 59, 999); 
-    const visitorData = await Visitor.deleteMany  ({
+    const visitorData = await Visitor.deleteMany({
       timestamp: { $gte: startOfDay, $lte: endOfDay },
     });;
     return res.status(200).send({message: 'Visitor Data deleted successfully'});
   }catch(error){
-    return res.status(500).send("Error delete the visitor Data")
+    return res.status(500).send("Error delete the visitor Data");
   }
 }
 
-export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, getVisitorData, deleteVistorDataByDate };
+const deleteVisitorDataById = async (req, res) => {
+  try{
+    const {id} = req.params;
+    if(!id) return res.status(400).send({message: 'id not there'});
+    console.log('tis is id', id)
+    const deleteVistor = await Visitor.findOneAndDelete({_id: id});
+    return res.status(200).send({message: 'Vistitor Data deleted Successfully'})
+  }catch(error){
+    return res.status(500).send("Error delete the visitor Data");
+
+  }
+}
+
+export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, getVisitorData, deleteVistorDataByDate, deleteVisitorDataById };
 
 
