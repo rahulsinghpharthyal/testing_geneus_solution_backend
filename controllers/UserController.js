@@ -61,6 +61,7 @@ const loginUser = async (req, res) => {
           name: user.name,
           email: user.email,
           plan: user.plan,
+          mobile: user.mobile,
         role: user.role,
         },
         accessToken,
@@ -509,6 +510,27 @@ const newUserRegister = async (req, res) => {
       .json({ error: "An error occurred while registering the user" });
   }
 };
+
+
+const deleteUserById = async (req, res) => {
+  try{
+    const {id} = req.params;
+    console.log(id)
+    console.log(req.user);
+    const {userId} = req.user;
+    if(userId != id)return res.status(403).json("Please Delete your account");
+    
+    const deleteUser = await User.findByIdAndDelete({_id: id});
+    return res.status(200).json("User account Deleted");
+  }catch(error){
+    console.log(error);
+    res
+    .status(500)
+    .json({ error: "An error occurred while deleting the user" });
+}
+}
+
+
 export {
     loginUser,
     getUser,
@@ -522,4 +544,5 @@ export {
   newUserRegister,
   userAuth,
   validateToken,
+  deleteUserById
 };
