@@ -6,8 +6,10 @@ configDotenv()
 const getCourse = async (req, res) => {
     try {
         const courses = await Course.find();
+        console.log(courses.length);
         res.json(courses);
     } catch (error) {
+      console.log(error)
         res.status(500).json({ error: "Error fetching courses" });
     }
 }
@@ -127,10 +129,78 @@ const getCourseById = async (req, res) => {
 
   
   
+const updateCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    console.log('this is course Id', req.params)
+    console.log(req.body)
+    const {
+      title,
+      img,
+      description,
+      level,
+      price,
+      discount_price,
+      learnings,
+      requirements,
+      aboutCourse,
+      whythisCourse,
+      whoitsfor,
+    } = req.body;
+
+    // Find the course by ID and update it
+    const updatedCourse = await Course.findByIdAndUpdate(
+      {_id: courseId},
+      {
+        title,
+        img,
+        description,
+        level,
+        price,
+        discount_price,
+        learnings,
+        requirements,
+        aboutCourse,
+        whythisCourse,
+        whoitsfor,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCourse) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    return res.status(200).json({ message: "Course updated successfully"});
+  } catch (error) {
+    console.error("Error updating course:", error);
+    res.status(500).json({ error: "Error updating course", details: error.message });
+  }
+};
+
+const deleteCourse = async (req, res) => {
+  try{
+
+    const {courseId} = req.params;
+    
+    const deleteCourse = await Course.findByIdAndDelete({_id: courseId});
+    if (!deleteCourse) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+    return res.status(200).json({message: "Course Deleted Successfully!"});
+  }catch(error){
+    console.error("Error updating course:", error);
+    res.status(500).json({ error: "Error updating course", details: error.message });
+  }
+
+}
+
 
 export {
     learning,
     getCourseById, 
-    getCourse,
-    addCourse
+    getCourse,    
+    addCourse,
+    updateCourse,
+    deleteCourse                                                                                              
 }
