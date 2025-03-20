@@ -5,6 +5,7 @@ const visitorSchema = new mongoose.Schema({
     ip: String,
     city: String,
     country: String,
+    url: String,
     timestamp: { type: Date, default: Date.now },
 });
 

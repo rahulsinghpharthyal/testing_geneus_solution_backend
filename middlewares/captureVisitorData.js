@@ -10,7 +10,8 @@ const captureVisitorData = async (req, res, next) => {
         //     const res = await fetch('https://api64.ipify.org?format=json');
         // const da = await res.json();
 
-
+        const frontendUrl = req.headers['frontend-url'] || 'Unknown URL';
+        console.log('frontendURl', frontendUrl);
 
         // Fetch location data from GeoLocation-DB
         const response = await fetch(`https://geolocation-db.com/json/${ip}&position=true`);
@@ -35,7 +36,7 @@ const captureVisitorData = async (req, res, next) => {
         // Save visitor data in MongoDB
         if (!existingVisitor) {
           // Save visitor data in MongoDB if no record for today
-          const newVisitor = new Visitor({ ip: ipv4, city, country, date: currentDate });
+          const newVisitor = new Visitor({ ip: ipv4, city, country, date: currentDate, url: frontendUrl });
           await newVisitor.save();
           // console.log(`Visitor Data Saved: IP=${ipv4}, City=${city}, Country=${country}`);
       } else {

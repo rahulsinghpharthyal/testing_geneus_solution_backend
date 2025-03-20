@@ -34,6 +34,7 @@ const corsOptions = {
     'Origin',
     'Access-Control-Request-Method',
     'Access-Control-Request-Headers',
+    'Frontend-URL',
   ],
   credentials: true,
   preflightContinue: false,
