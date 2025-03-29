@@ -16,6 +16,7 @@ import NewUser from "../models/NewUser.js";
 import { configDotenv } from "dotenv";
 import jwt from "jsonwebtoken";
 import aj from "../utilities/ArcjectSetup/arcjetConfig.js";
+import UserProfile from "../models/UserProfile.js";
 
 configDotenv();
 
@@ -370,7 +371,7 @@ const signup = async (req, res) => {
     newUser.food = newFood._id;
     newUser.plan = newPlan._id;
     await newUser.save();
-
+   
     // Send the email without sensitive info
     const currentDate = new Date();
     const registrationRequest =
@@ -512,13 +513,73 @@ const newUserRegister = async (req, res) => {
 };
 
 
+const createAndUpdateUserProfile = async(req, res) => {
+  try{
+    const {data} = req.body;
+    console.log(data);
+    // const {name, email, mobile, dateOfBirth, secondaryEmail, whatsappNumber, address} = req.body;
+    const { userId }= req.params;
+    // Find the user in database:-
+    // Step 01:- update the user on User model:-
+    const updateUserData = {};
+    if (data.name) updateUserData.name = data.name;
+    if (data.email) updateUserData.email = data.email;
+    if (data.mobile) updateUserData.mobile = data.mobile;
+
+      const updateUser = await User.findByIdAndUpdate(userId,
+        {
+          $set: updateUserData,
+        },
+        {new: true, runValidators: true});
+        if(!updateUser) return res.status(400).json({ error: "User Not Registered and not updated" });
+    //Find the user in UserProfile:-
+    // step 02:- update the user on User Profile:-
+        const updateUserProfileData = {};
+    if(data.dateOfBirth) updateUserProfileData.dateOfBirth = data.dateOfBirth;
+    if(data.secondaryEmail) updateUserProfileData.secondaryEmail = data.secondaryEmail;
+    if(data.whatsappNumber) updateUserProfileData.whatsappNumber = data.whatsappNumber;
+    if(data.address) updateUserProfileData.address = data.address;
+
+    const updateUserProfile = await UserProfile.findOneAndUpdate(
+      {userId},
+      {
+        $set: updateUserProfileData
+      },
+      {new: true, runValidators: true}
+
+    )
+    if(!updateUserProfile) return res.status(400).json({ error: "User Not Registered on Update Profile and not updated" });
+    
+    // step 03: use $lookup to fetch user along with user Profile
+    return res.status(200).json({message: "User Profile updated", userData: updateUserProfile})
+  }catch(error){
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: error || "An error occurred while update the user Profile" });
+  }
+}
+
+const getUserProfile = async(req, res)=> {
+  const {userId} = req.user;
+  const {id} = req.params;
+  if(userId != id)return res.status(403).json("You are not authorize to get the profile details");
+
+  const userData = await UserProfile.findOne({ userId: id })
+  .populate('userId', 'name email mobile role') // Populate specific fields
+  .select('dateOfBirth address secondaryEmail whatsappNumber profilePicture')
+  .exec();
+  return res.status(200).json({userProfileData: userData, message: "User Profile Data"})
+}
+
+
 const deleteUserById = async (req, res) => {
   try{
     const {id} = req.params;
     console.log(id)
     console.log(req.user);
     const {userId} = req.user;
-    if(userId != id)return res.status(403).json("Please Delete your account");
+    if(userId != id)return res.status(403).json("You are not authorize");
     
     const deleteUser = await User.findByIdAndDelete({_id: id});
     return res.status(200).json("User account Deleted");
@@ -544,5 +605,7 @@ export {
   newUserRegister,
   userAuth,
   validateToken,
-  deleteUserById
+  deleteUserById,
+  createAndUpdateUserProfile,
+  getUserProfile
 };
