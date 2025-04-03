@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import UserProfile from "./UserProfile.js";
+
 const { Schema } = mongoose;
 var validateEmail = function (email) {
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -71,7 +73,23 @@ const userSchema = new Schema(
 );
 //export default mongoose.model("User", userSchema);
 // Check if the model already exists to avoid overwriting
+
+// After successfull registration save the user Id into the userProfile model
+userSchema.post("save", async function (doc) {
+    try {
+      const userProfile = new UserProfile({
+        userId: doc._id, 
+      });
+  
+      await userProfile.save(); 
+    } catch (error) {
+      console.error("Error creating UserProfile:", error.message);
+    }
+  });
+
 const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+
 
  // Default export
 export default User;

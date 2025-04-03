@@ -11,7 +11,6 @@ const captureVisitorData = async (req, res, next) => {
         // const da = await res.json();
 
         const frontendUrl = req.headers['frontend-url'] || 'Unknown URL';
-        console.log('frontendURl', frontendUrl);
 
         // Fetch location data from GeoLocation-DB
         const response = await fetch(`https://geolocation-db.com/json/${ip}&position=true`);
