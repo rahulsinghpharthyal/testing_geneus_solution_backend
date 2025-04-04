@@ -573,23 +573,45 @@ const getUserProfile = async(req, res)=> {
 }
 
 
-const deleteUserById = async (req, res) => {
+const getAllUsers = async(req, res) => {
   try{
-    const {id} = req.params;
-    console.log(id)
-    console.log(req.user);
-    const {userId} = req.user;
-    if(userId != id)return res.status(403).json("You are not authorize");
-    
-    const deleteUser = await User.findByIdAndDelete({_id: id});
-    return res.status(200).json("User account Deleted");
+    const users = await User.find({}, {_id: 1, courses:1, name:1, role:1});
+    const modifyUsers = users.map((user)=> {
+      const coursePurchase = user?.courses  && user.courses?.length > 0  ? true : false;
+      return {...user.toObject(), coursePurchase};
+    })
+    return res.status(200).json({message: 'User fetched successfully', modifyUsers})
   }catch(error){
-    console.log(error);
-    res
-    .status(500)
-    .json({ error: "An error occurred while deleting the user" });
+    return res.status(200).json(error || "Something went wrong on fecthing user data")
+  }
 }
-}
+
+  const deleteUserAccountById = async (req, res) => {
+    try {
+      const { id } = req.params; // ID to be deleted
+      const { userId } = req.user; // Logged-in user's ID and role
+      //find the user by id
+      const user = await User.findById({_id:userId});
+      // Check if the user is authorized to delete this account
+      if (user.role !== "admin" && userId !== id) {
+        return res.status(403).json({ message: "You are not authorized to delete this account" });
+      }
+  
+      const deletedUser = await User.findByIdAndDelete(id);
+      if (!deletedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      const message = user.role === "admin"
+        ? "User account has been deleted by admin"
+        : "Your account has been deleted";
+  
+      return res.status(200).json({ message });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "An error occurred while deleting the account" });
+    }
+  };
 
 
 export {
@@ -605,7 +627,8 @@ export {
   newUserRegister,
   userAuth,
   validateToken,
-  deleteUserById,
+  deleteUserAccountById,
   createAndUpdateUserProfile,
-  getUserProfile
+  getUserProfile,
+  getAllUsers,
 };
