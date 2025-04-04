@@ -7,8 +7,21 @@ import sendEmail from "./EmailController.js";
 import { configDotenv } from "dotenv";
 configDotenv();
 const postRazorpay = async (req, res) => {
-  console.log('this is postRazorpay body', req.body)
   try {
+    const getExistingCourse = await User.findOne({email: req.body.email}).select('courses');
+    console.log(getExistingCourse, 'this is getExistingCourse')
+    if(getExistingCourse?.courses?.length > 0) {
+      const existingCourse = getExistingCourse.courses;
+      const cartDetails = req.body.cart_details;
+
+      const isCourseAlreadyEnrolled = existingCourse.some((course) => {
+        return cartDetails.includes(course);
+      });
+      if (isCourseAlreadyEnrolled) {  
+        return res.status(409).json({ error: "You have already enrolled for this course" });        
+      }
+    }
+
     const payment_capture = 1;
     const amount = parseInt(req.body.amount);
     const currency = req.body.currency;
