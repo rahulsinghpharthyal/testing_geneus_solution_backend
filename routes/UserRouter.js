@@ -21,7 +21,7 @@ router.get('/api/user', Auth, getUser);
 router.post('/refreshToken', refreshTokenHandler);
 router.post('/userAuth', validateToken, userAuth);
 router.post('/newUserRegister',newUserRegister );
-router.delete('/deleteUser/:id', Auth, deleteUserAccountById);
+router.delete('/deleteuser/:id', Auth, deleteUserAccountById);
 router.post('/updateuserprofile/:userId', createAndUpdateUserProfile);
 router.get('/getuserprofile/:id',Auth, getUserProfile);
 

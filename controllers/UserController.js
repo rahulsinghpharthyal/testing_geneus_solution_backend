@@ -575,7 +575,7 @@ const getUserProfile = async(req, res)=> {
 
 const getAllUsers = async(req, res) => {
   try{
-    const users = await User.find({}, {_id: 1, courses:1, name:1, role:1});
+    const users = await User.find({}).select('_id courses name role');
     const modifyUsers = users.map((user)=> {
       const coursePurchase = user?.courses  && user.courses?.length > 0  ? true : false;
       return {...user.toObject(), coursePurchase};
@@ -598,6 +598,7 @@ const getAllUsers = async(req, res) => {
       }
   
       const deletedUser = await User.findByIdAndDelete(id);
+      await UserProfile.findOneAndDelete({userId: id});
       if (!deletedUser) {
         return res.status(404).json({ message: "User not found" });
       }
