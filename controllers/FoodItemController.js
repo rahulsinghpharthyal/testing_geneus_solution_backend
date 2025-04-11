@@ -1,14 +1,14 @@
-import Item from "../models/FoodItems.js";
+import Item from '../models/FoodItems.js'
 
 const createItem = async (req, res) => {
     try {
         const newItems = await Item.insertMany(req.body);
-
+       
         res.status(201).json(newItems);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
-};
+}
 
 const getItems = async (req, res) => {
     try {
@@ -17,6 +17,9 @@ const getItems = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+}
 
-export { createItem, getItems };
+export  {
+    createItem,
+    getItems
+}
