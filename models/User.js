@@ -32,6 +32,16 @@ const userSchema = new Schema(
             min: 8,
             max: 25,
         },
+        isAccountVerified: {
+            type: Boolean,
+            default: false,
+        },
+        otp:{
+            type: Number,
+        },
+        otpExpires: {
+            type: Date,
+        },
         mobile: {
             type: String,
             trim: true,

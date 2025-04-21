@@ -7,6 +7,7 @@ import sendEmail from "./EmailController.js";
 import { configDotenv } from "dotenv";
 configDotenv();
 const postRazorpay = async (req, res) => {
+  console.log('this is postRazorpay body', req.body)
   try {
     const getExistingCourse = await User.findOne({email: req.body.email}).select('courses');
     console.log(getExistingCourse, 'this is getExistingCourse')

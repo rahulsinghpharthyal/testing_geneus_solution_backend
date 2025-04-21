@@ -1,18 +1,18 @@
-import express from "express";
+import express from 'express';
 import {
-    loginUser,
-    getUser,
-    signup,
+  loginUser,
+  getUser,
+  signup,
     androidSignup,
     newUserRegister,
     userAuth,
     validateToken,
     deleteUserAccountById,
-    createAndUpdateUserProfile,
+  createAndUpdateUserProfile,
     getUserProfile,
     getAllUsers,
-} from "../controllers/UserController.js";
-import { Auth, refreshTokenHandler } from "../controllers/AuthController.js";
+ } from '../controllers/UserController.js';
+import { Auth, refreshTokenHandler} from '../controllers/AuthController.js';
 import { Authorise } from "../middlewares/authorize.js";
 const router = express.Router();
 
@@ -26,6 +26,4 @@ router.post("/newUserRegister", newUserRegister);
 router.delete("/deleteuser/:id", Auth, deleteUserAccountById);
 router.post("/updateuserprofile/:userId", createAndUpdateUserProfile);
 router.get("/getuserprofile/:id", Auth, getUserProfile);
-
-router.get("/getallusers", Auth, Authorise(["admin"]), getAllUsers);
 export default router;

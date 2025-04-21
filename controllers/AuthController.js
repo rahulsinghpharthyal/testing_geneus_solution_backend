@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.js';
 import Visitor from "../models/Visitor.js";
 import { configDotenv } from 'dotenv';
+import geoip from 'geoip-lite';
+
 configDotenv()
 const Auth = (req, res, next) => {
     try {
@@ -87,6 +89,29 @@ const visitors = async (req, res) => {
   }
 }
 
+const captureVisitorData = async (req, res) => {
+  try {
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const frontendUrl = req.headers['frontend-url'] || req.headers['Frontend-URL'] || 'Unknown URL';
+        // const ip = '8.8.8.8'; // this is for dev
+        const geo = geoip.lookup(ip);
+        const now = new Date();
+        const startOfDay = new Date(now);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(now);
+        endOfDay.setHours(23, 59, 59, 999);
+        const existingVisitorInDay = await Visitor.findOne({ip, createdAt: {$gte: startOfDay, $lte: endOfDay}});
+        if(!existingVisitorInDay){
+          const newVisitor = new Visitor({ip: ip, city: geo?.city, country: geo?.country, url: frontendUrl})
+          await newVisitor.save();
+        }
+        return res.status(200).json({message: "Visitor Data saved"})
+  } catch (error) {
+    console.error("Error fetching visitor data:", error);
+    return res.status(500).json({message: "Error capturing visitor data", error})
+  }
+};
+
 const getVisitorData = async(req, res)=> {
   try{
     const {dateFrom, dateTo} = req.params;
@@ -141,6 +166,13 @@ const deleteVisitorDataById = async (req, res) => {
   }
 }
 
-export { generateAccessToken, generateRefreshToken, Auth, refreshTokenHandler, getVisitorData, deleteVistorDataByDate, deleteVisitorDataById };
+export {   generateAccessToken, 
+  generateRefreshToken, 
+  Auth, 
+  refreshTokenHandler,
+  getVisitorData, 
+  captureVisitorData,
+  deleteVistorDataByDate, 
+  deleteVisitorDataById };
 
 
