@@ -1,6 +1,7 @@
 // import fetch from 'node-fetch';
 // import Visitor from '../models/Visitor.js';
 
+// this is temporary
 // const captureVisitorData = async (req, res, next) => {
 //     try {
 //         const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
