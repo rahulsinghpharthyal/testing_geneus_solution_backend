@@ -50,8 +50,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-import captureVisitorData from "./middlewares/captureVisitorData.js";
-app.use(captureVisitorData);
+// import captureVisitorData from "./middlewares/captureVisitorData.js";
+// app.use(captureVisitorData);
 
 const routes = readdirSync("./routes");
 routes.forEach(async (r) => {
