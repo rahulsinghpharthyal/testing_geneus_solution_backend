@@ -26,6 +26,6 @@ const ItemSchema = new mongoose.Schema({
     }
 })
 
-const Item = mongoose.model('Item', ItemSchema);
+const Item = mongoose.model('FoodItem', ItemSchema);
 
 export default Item;

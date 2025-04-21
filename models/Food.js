@@ -44,6 +44,6 @@ const foodSchema = new mongoose.Schema({
 });
 
 
-const Food = mongoose.model('Food', foodSchema);
+const Food = mongoose.model('UserDietDiary', foodSchema);
 
 export default Food;
