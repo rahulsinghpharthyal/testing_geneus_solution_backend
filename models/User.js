@@ -51,7 +51,12 @@ const userSchema = new Schema(
                 "Please fill a valid 10-digit mobile number",
             ],
         },
-        courses: [String],
+        courses: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Course",
+            }
+        ],
         resetPasswordToken: String,
         resetPasswordExpires: Date,
         role: {

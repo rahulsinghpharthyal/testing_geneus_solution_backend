@@ -1,12 +1,65 @@
 import User from "../models/User.js";
 import Details from "../models/FoodDetails.js";
 import { configDotenv } from "dotenv";
+import Plan from "../models/Plan.js";
 configDotenv();
+
+const getYourCaloriesRequirement = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const userExists = await User.findById(userId);
+
+    if (!userExists) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const detailExists = await Details.findOne({ user: userId });
+
+    if (!detailExists) {
+      res.status(404).json({ message: "Details not found" });
+      return;
+    }
+
+    let carbs = 0;
+    let protein = 0;
+    let fat = 0;
+
+    if(detailExists.goal === "Lose Weight"){
+      carbs = Math.round((detailExists.caloriegoal * 0.4) / 4);
+      protein = Math.round((detailExists.caloriegoal * 0.3) / 4);
+      fat = Math.round((detailExists.caloriegoal * 0.3) / 9);
+    } else if(detailExists.goal === "Maintain Weight"){
+      carbs = Math.round((detailExists.caloriegoal * 0.5) / 4);
+      protein = Math.round((detailExists.caloriegoal * 0.25) / 4);
+      fat = Math.round((detailExists.caloriegoal * 0.25) / 9);
+    } else if(detailExists.goal === "Gain Weight"){
+      carbs = Math.round((detailExists.caloriegoal * 0.55) / 4);
+      protein = Math.round((detailExists.caloriegoal * 0.25) / 4);
+      fat = Math.round((detailExists.caloriegoal * 0.2) / 9);
+    } 
+
+    res.status(200).json({
+      ...detailExists._doc,
+      carbs,
+      protein,
+      fat,
+    });
+
+  } catch (error) {
+    console.error("Error fetching details:", error);
+    res.status(500).json({ message: error.message });
+  }
+}
 
 const updateDetail = async (req, res) => {
   try {
+
+    const {userId} = req.user;
+
     const {
-      user,
+      // userId,
       goal,
       activityLevel,
       gender,
@@ -17,7 +70,8 @@ const updateDetail = async (req, res) => {
       goalWeight,
     } = req.body;
 
-    const userExists = await User.findById(user);
+    const userExists = await User.findById(userId);
+
     if (!userExists) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -25,13 +79,13 @@ const updateDetail = async (req, res) => {
 
     const birthDate = new Date(dateOfBirth);
     const age = new Date().getFullYear() - birthDate.getFullYear();
-    console.log(age);
 
-    let bmr;
-    if (gender === "Male") {
-      bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-    } else if (gender === "Female") {
-      bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+    let bmi;
+
+    if (gender === "Male" || gender === "male") {
+      bmi = 10 * weight + 6.25 * height - 5 * age + 5;
+    } else if (gender === "Female" || gender === "female") {
+      bmi = 10 * weight + 6.25 * height - 5 * age - 161;
     } else {
       return res
         .status(400)
@@ -59,13 +113,20 @@ const updateDetail = async (req, res) => {
         activityFactor = 1.2;
     }
 
-    const tdee = bmr * activityFactor;
+    const goalMultiplier = {
+      "Lose Weight": -500,
+      "Maintain Weight": 0,
+      "Gain Weight": 500,
+    }[goal];
+
+    const tdee = bmi * activityFactor + goalMultiplier;
     const calories = Math.round(tdee);
-    console.log(calories);
-    const detailExists = await Details.findOne({ user });
+
+    const detailExists = await Details.findOne({ user:userId });
+
     if (!detailExists) {
       const newDetail = new Details({
-        user,
+        userId:userId,
         goal,
         activityLevel,
         gender,
@@ -78,8 +139,9 @@ const updateDetail = async (req, res) => {
       });
       await newDetail.save();
     }
+
     const updatedDetail = await Details.findOneAndUpdate(
-      { user },
+      { user:userId },
       {
         goal,
         activityLevel,
@@ -92,10 +154,26 @@ const updateDetail = async (req, res) => {
       },
       { new: true }
     );
+
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+
+    endDate.setDate(startDate.getDate() + 3);
+
+    await Plan.create(
+      {
+        userId,
+        startDate,
+        endDate,
+      }
+    );
+
     res.status(200).json(updatedDetail);
+
   } catch (error) {
+    console.error("Error updating details:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-export { updateDetail };
+export {getYourCaloriesRequirement, updateDetail };

@@ -1,28 +1,37 @@
-import express from 'express';
 import Food from '../models/Food.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
-import { Auth, refreshTokenHandler } from '../controllers/AuthController.js'
 import { configDotenv } from 'dotenv';
 
 configDotenv()
 const postFood =  async (req, res) => {
   
   try {
-      const { user, breakfast, lunch, dinner } = req.body;
-        const userExists = await User.findById(user);
+        const { userId } = req.user; // Extract userId from the request
+        const { breakfast, lunch, dinner } = req.body;
+        const userExists = await User.findById(userId);
+
         if (!userExists) {
-            return res.status(404).json({ message: "User not found" });
+          return res.status(404).json({ message: "User not found" });
         }
 
-        let foodData = await Food.findOne({ user });
+        const currentDate = new Date();
+        const dateFormat = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+        const startOfDay = new Date(dateFormat); // Midnight of the day
+        const endOfDay = new Date(dateFormat);
+        endOfDay.setDate(endOfDay.getDate() + 1); // Midnight of next day
+
+        let foodData = await Food.findOne({ user:userId,createdAt: { $gte: startOfDay,$lt: endOfDay}});
+
+        // console.log("foodData post : ", foodData)
 
         const formatItems = (mealItems) => {
-            if (!mealItems) return [];
-            if (Array.isArray(mealItems)) {
-                return mealItems.map(item => ({ item, quantity: 1 }));
-            }
-            return [{ item: mealItems, quantity: 1 }];
+          if (!mealItems) return [];
+          if (Array.isArray(mealItems)) {
+              return mealItems.map(item => ({ item, quantity: 1 }));
+          }
+          return [{ item: mealItems, quantity: 1 }];
         };
 
         if (foodData) {
@@ -39,15 +48,18 @@ const postFood =  async (req, res) => {
             }
 
             if (lunch) {
-                const formattedLunch = formatItems(lunch);
-                formattedLunch.forEach(newItem => {
-                    const existingItem = foodData.lunch.find(item => item.item.toString() === newItem.item);
-                    if (existingItem) {
-                        existingItem.quantity += newItem.quantity;
-                    } else {
-                        foodData.lunch.push(newItem);
-                    }
-                });
+
+              const formattedLunch = formatItems(lunch);
+
+              formattedLunch.forEach(newItem => {
+                const existingItem = foodData.lunch.find(item => item.item.toString() === newItem.item);
+                if (existingItem) {
+                    existingItem.quantity += newItem.quantity;
+                } else {
+                    foodData.lunch.push(newItem);
+                }
+              });
+              
             }
 
             if (dinner) {
@@ -63,10 +75,12 @@ const postFood =  async (req, res) => {
             }
 
             const updatedFood = await foodData.save();
+
             return res.status(200).json(updatedFood);
+
         } else {
             const newFood = new Food({
-                user,
+                user:userId,
                 breakfast: formatItems(breakfast),
                 lunch: formatItems(lunch),
                 dinner: formatItems(dinner)
@@ -85,22 +99,40 @@ const getFoodById =  async (req, res) => {
   try {
 
         const { id } = req.params;
-      
+        const { date } = req.query; // Extract date from query parameters
+
         if (!mongoose.isValidObjectId(id)) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
+
+        const Today = date ? new Date(date) : new Date();
+        const dateFormat = Today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const startOfDay = new Date(dateFormat); // Midnight of the day
+        const endOfDay = new Date(dateFormat);
+        endOfDay.setDate(endOfDay.getDate() + 1); // Midnight of next day
+        
      
-        const foodData = await Food.findOne({ user: id })
-            .populate('user')  
+        const foodData = await Food.findOne({ user: id ,createdAt: { $gte: startOfDay,$lt: endOfDay}})
+            .populate('user', '_id name mobile food')  
             .populate('breakfast.item')  
             .populate('lunch.item')     
             .populate('dinner.item');    
 
-       
         if (!foodData) {
-            return res.status(404).json({ message: "No food data found" });
+          const user = await User.findById(id, { _id: 1, name: 1, mobile: 1 , food: 1 });
+            return res.status(200).json({ 
+              user: user,
+              breakfast: [],
+              lunch: [],
+              dinner: [],
+              snacks: [],
+              totalCalories:0,
+              totalProtein : 0,
+              totalCarbs : 0,
+              totalFat : 0
+             });
         }
-        console.log("remove food called ")
+
         let totalCalories = 0;
         let totalProtein = 0;
         let totalCarbs = 0;
@@ -133,11 +165,13 @@ const getFoodById =  async (req, res) => {
 
       
         const responseData = {
-            ...foodData._doc, 
-            totalCalories,
-            totalProtein : Math.round(totalProtein),
-            totalCarbs : Math.round(totalCarbs),
-            totalFat : Math.round(totalFat)
+
+          ...foodData._doc, 
+          totalCalories,
+          totalProtein : Math.round(totalProtein),
+          totalCarbs : Math.round(totalCarbs),
+          totalFat : Math.round(totalFat)
+
         };
 
         return res.status(200).json(responseData);
@@ -154,11 +188,18 @@ const updateFood = async (req, res) => {
       const { userId } = req.user; 
       const { meal, quantity, id } = req.body;
 
-      let userMeals = await Food.findOne({ user: userId });
+      const Today = new Date();
+        const dateFormat = Today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const startOfDay = new Date(dateFormat); // Midnight of the day
+        const endOfDay = new Date(dateFormat);
+        endOfDay.setDate(endOfDay.getDate() + 1); // Midnight of next day
+
+      let userMeals = await Food.findOne({ user: userId,createdAt: { $gte: startOfDay,$lt: endOfDay}});
       
       if (!userMeals) {
         return res.status(404).json({ message: 'User meal data not found' });
       }
+
       const findAndRemoveMealItem = (mealArray) => {
         const index = mealArray.findIndex(item => item._id.toString() === id);
         if (index !== -1) {
@@ -205,7 +246,15 @@ const updateFood = async (req, res) => {
     try {
       const { userId } = req.user; 
       const { id } = req.body; 
-      let userMeals = await Food.findOne({ user: userId });      
+
+      const Today = new Date();
+        const dateFormat = Today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const startOfDay = new Date(dateFormat); // Midnight of the day
+        const endOfDay = new Date(dateFormat);
+        endOfDay.setDate(endOfDay.getDate() + 1); // Midnight of next day
+
+      let userMeals = await Food.findOne({ user: userId,createdAt: { $gte: startOfDay,$lt: endOfDay}}); 
+
       if (!userMeals) {
         return res.status(404).json({ message: 'User meal data not found' });
       }  

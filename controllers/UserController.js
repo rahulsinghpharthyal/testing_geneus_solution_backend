@@ -332,7 +332,7 @@ const signup = async (req, res) => {
             email: email,
         });
 
-    // console.log("Decision:", decision);
+    console.log("Decision:", decision);
 
         if (decision.isDenied()) {
             if (decision.reason.isEmail()) {
@@ -369,13 +369,13 @@ const signup = async (req, res) => {
     const newPlan = await Plan.create({
       userId: newUser._id,
       name: "Free Trial",
-      duration: 7,
+      duration: 3,
       price: freePlanPrice,
     });
 
     newUser.details = newDetail._id;
     newUser.food = newFood._id;
-    newUser.plan = newPlan._id;
+    // newUser.plan = newPlan._id;
     await newUser.save();
 
     // Send the email without sensitive info
@@ -419,6 +419,7 @@ const signup = async (req, res) => {
             .json({ error: "An error occurred! Please try again later." });
     }
 };
+
 const androidSignup = async (req, res) => {
     try {
         const { name, email, password, mobile } = req.body;

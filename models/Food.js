@@ -9,7 +9,7 @@ const foodSchema = new mongoose.Schema({
         {
             item: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Item"
+                ref: "FoodItem"
             },
             quantity: {
                 type: Number,
@@ -21,7 +21,7 @@ const foodSchema = new mongoose.Schema({
         {
             item: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Item"
+                ref: "FoodItem"
             },
             quantity: {
                 type: Number,
@@ -33,14 +33,16 @@ const foodSchema = new mongoose.Schema({
         {
             item: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Item"
+                ref: "FoodItem"
             },
             quantity: {
                 type: Number,
                 default: 1
             }
         }
-    ]
+    ],
+},{
+    timestamps: true
 });
 
 

@@ -61,7 +61,7 @@ const verifyPayment = async (req, res) => {
       await Plan.findOneAndUpdate(
         { userId },
         {
-          name: "Premium Plan",
+          plan: "Premium Plan",
           duration: 30,
           price: 1000,
           startDate,

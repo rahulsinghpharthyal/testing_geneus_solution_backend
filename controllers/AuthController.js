@@ -28,7 +28,10 @@ const Auth = (req, res, next) => {
         req.user = { userId: decodedData.id, role: decodedData.role };
         next();
     } catch (verifyError) {
-        console.error('Token verification failed:', verifyError);
+        // console.error('Token verification failed:', verifyError);
+        if(verifyError.name === 'TokenExpiredError') {
+            return res.status(403).json({ error: "Token expired" });
+        }
         return res.status(403).json({ error: "Forbidden" });
     }
 };
