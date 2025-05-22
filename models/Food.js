@@ -9,6 +9,7 @@ const foodSchema = new mongoose.Schema({
         {
             item: {
                 type: mongoose.Schema.Types.ObjectId,
+
                 ref: "FoodItem",
             },
             quantity: {
@@ -21,6 +22,7 @@ const foodSchema = new mongoose.Schema({
         {
             item: {
                 type: mongoose.Schema.Types.ObjectId,
+
                 ref: "FoodItem",
             },
             quantity: {

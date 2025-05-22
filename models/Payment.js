@@ -8,6 +8,7 @@ const cartItemSchema = new mongoose.Schema({
   course_discountPrice: Number,
   timestamp: Date,
 });
+
 const paymentSchema = mongoose.Schema(
   {
     order_id: String,
@@ -15,9 +16,6 @@ const paymentSchema = mongoose.Schema(
     signature: String,
     status: String,
     user_id: String,
-    cart_details: {
-      type: [cartItemSchema],
-    },
   },
   { timestamps: true }
 );

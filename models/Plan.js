@@ -6,7 +6,7 @@ const planSchema = new mongoose.Schema({
         ref: 'User', 
         required: true,
     },
-    name: {
+    plan: {
         type: String,
         required: true,
         default: 'Free Trial',
@@ -15,19 +15,24 @@ const planSchema = new mongoose.Schema({
     duration: {
         type: Number,
         required: true,
-        default: 7,
-        enum: [7, 30],
+        default: 3,
+        enum: [3, 30],
     },
     price: {
         type: Number,
         required: true,
         validate: {
             validator: function(value) {
-                return (this.name === 'Free Trial' && value === 0) || 
-                       (this.name === 'Premium Plan' && value > 0);
+                return (this.plan === 'Free Trial' && value === 0) || 
+                       (this.plan === 'Premium Plan' && value > 0);
             },
             message: 'Invalid price for the selected plan',
         },
+        default:0
+    },
+    paymentId: {
+        type: String,
+        // required: true,
     },
     startDate: {
         type: Date,

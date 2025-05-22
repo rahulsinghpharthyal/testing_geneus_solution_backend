@@ -1,24 +1,26 @@
 import mongoose from "mongoose";
-const cartItemSchema = new mongoose.Schema({
-  course_id: String,
-  course_title: String,
-  course_description: String,
-  course_image: String,
-  course_price: Number,
-  course_discountPrice: Number,
-  timestamp: Date,
-});
+
 const cartSchema = mongoose.Schema(
   {
-    user_id: String,
-    cart_items: {
-      type: [cartItemSchema],
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    cart_total: Number,
-    discount: Number,
-    total_after_discount: Number,
+    coursesIds: [{
+      type:mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+    }],
+    cartItemLength: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
+
+// cartSchema.pre("save", function (next) {
+//   this.cartItemLength = this.coursesIds.length;
+//   next();
+// });
 
 export default mongoose.model("Cart", cartSchema);

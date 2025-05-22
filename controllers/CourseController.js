@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Course from "../models/Course.js";
 import User from "../models/User.js";
 import { configDotenv } from 'dotenv';
+import Razorpay from "razorpay";
+import MyLearning from "../models/Mylearnings.js";
 configDotenv()
 const getCourse = async (req, res) => {
     try {
@@ -64,21 +66,19 @@ const addCourse = async (req, res) => {
 
 const learning = async (req, res) => {
     try {
-      console.log('htis sis id', req.query);
-        const user_id = req.query.user_id;
-        if (!user_id) {
+
+        const {userId} = req.user;
+
+        if (!userId) {
             return res.status(400).json({ error: "User ID is required" });
         }
-        const user = await User.findById(user_id);
-        console.log('this is user', user)
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        const user_courses = user.courses;
-        console.log('this is userCourser', user_courses)
-        const courses = await Course.find({ _id: { $in: user_courses } });
-        console.log('this is course', courses);
-        return res.status(200).json({ courses: courses });
+
+        const courses = await MyLearning.findOne({ userId: userId }).populate('courses_id').lean();
+
+        const myLearningCourses = courses?.courses_id ? courses?.courses_id : [];
+
+        return res.status(200).json({ courses: myLearningCourses });
+
     } catch (error) {
        return  res.status(500).json({ error: "Error fetching courses" });
     }
@@ -86,9 +86,11 @@ const learning = async (req, res) => {
 
 const getCourseById = async (req, res) => {
   try {
-    const { _id } = req.query; // Extract user ID from the query
+    const { userId } = req.query; // Extract user ID from the query
     const courseId = req.params.id;
-    console.log("Course ID:", courseId);
+
+    // change courseId to mongoose ObjectId
+    const courseObjectId = mongoose.Types.ObjectId(courseId);
     // Fetch course details
     const courseDetails = await Course.findById(courseId).lean();
     if (!courseDetails) {
@@ -98,11 +100,12 @@ const getCourseById = async (req, res) => {
     let hasAccess = false;
 
     // Validate _id before using it
-    if (_id && mongoose.Types.ObjectId.isValid(_id)) {
-      const user = await User.findById(_id).lean();
-      if (user) {
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+      const Mylearning = await MyLearning.findOne({userId}).lean();
+      
+      if (Mylearning?.courses_id?.length > 0) {
         // Check if the user has access to the course
-        hasAccess = user.courses.includes(courseId);
+        hasAccess = Mylearning?.courses_id.includes(courseObjectId);
       }
     }
 
@@ -195,6 +198,74 @@ const deleteCourse = async (req, res) => {
 
 }
 
+const courseCheckout = async (req, res) => {
+  try {
+
+
+    const { userId } = req.user;
+    
+    const { currency,courseIds } = req.body;
+
+    // Validate userId and courseId
+    if (!userId) {
+      return res.status(400).json({ success:false,message: "User ID is required" });
+    }
+
+    if(courseIds.length === 0 || courseIds.length < 0){
+      return res.status(400).json({ success:false,message: "Course ID is required" });
+    }
+
+    //  check if any of the course is already purchased
+    const purchasedCourses = await MyLearning.findOne({ userId }).populate("courses_id","_id title").lean();
+
+    if (purchasedCourses && purchasedCourses.courses_id.length > 0) {
+
+      const alreadyPurchased = purchasedCourses.courses_id.find((course) => courseIds.includes(course._id.toString()));
+
+      if (alreadyPurchased) {
+        return res.status(400).json({ success:false,message: `Course "${alreadyPurchased?.title}" already purchased` });
+      }
+
+    }
+
+    const courses = await Course.find({ _id: { $in: courseIds } }, { _id: 1, title: 1, price: 1, discount_price: 1 });
+
+    const checkoutCoursesIds = courses.map((course) => {
+      return course?._id?.toString();
+    });
+
+    const payableAmount = courses.reduce((total, course) => {
+      const coursePrice = course.discount_price || course.price;
+      return total + coursePrice;
+    }, 0);
+
+    const options = {
+      amount: payableAmount * 100,
+      currency,
+      notes: {
+        data:{
+          userId: userId,
+          courseIds:checkoutCoursesIds,
+        },
+        expectedPaymentToReceive: payableAmount*100,
+        event:'purchase_course',
+      }
+    };
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_ID,
+      key_secret: process.env.RAZORPAY_SECRET,
+    });
+    
+    const order = await razorpay.orders.create(options);
+
+    return res.status(200).json({success:true, Data:{orderId: order?.id, currency: order?.currency, amount: order?.amount}});
+
+  } catch (error) {
+    res.status(500).json({ error: "Error during checkout", details: error.message });
+  }
+}
+
 
 export {
     learning,
@@ -202,5 +273,6 @@ export {
     getCourse,    
     addCourse,
     updateCourse,
-    deleteCourse                                                                                              
+    deleteCourse,      
+    courseCheckout                                                                                        
 }

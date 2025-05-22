@@ -54,6 +54,7 @@ app.use(morgan("dev"));
 // app.use(captureVisitorData);
 
 const routes = readdirSync("./routes");
+// console.log('Routes:', routes);
 routes.forEach(async (r) => {
     const routePath = `./routes/${r}`;
     const router = (await import(routePath)).default;

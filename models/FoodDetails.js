@@ -1,32 +1,32 @@
 import mongoose from "mongoose";
 
 const detailsSchema = new mongoose.Schema({
-    user : {
+    userId : {  //
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
     },
     goal : {
         type : String
     },
-    activityLevel : {
+    activityLevel : {  //
         type : String
     },
-    gender : {
+    gender : {  //
         type : String
     },
-    dateOfBirth : {
+    dateOfBirth : {  //
         type : Date
     },
     country : {
         type : String
     },
-    height : {
+    height : {  //
        type : Number
     },
-    weight : {
+    weight : {  //
         type : Number
     },
-    caloriegoal : {
+    caloriegoal : {  //
         type : Number
     }
 }, {timestamps : true})

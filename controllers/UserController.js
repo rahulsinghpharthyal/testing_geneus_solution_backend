@@ -381,6 +381,7 @@ const signup = async (req, res) => {
             mobile,
         });
 
+
         // Create related details, food, and plan
         const newDetail = await Detail.create({ user: newUser._id });
         const newFood = await Food.create({ user: newUser._id });
@@ -439,6 +440,7 @@ const signup = async (req, res) => {
             .json({ error: "An error occurred! Please try again later." });
     }
 };
+
 const androidSignup = async (req, res) => {
     try {
         const { name, email, password, mobile } = req.body;
