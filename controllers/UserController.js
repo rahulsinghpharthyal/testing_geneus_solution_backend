@@ -332,7 +332,7 @@ const signup = async (req, res) => {
             email: email,
         });
 
-    console.log("Decision:", decision);
+    // console.log("Decision:", decision);
 
         if (decision.isDenied()) {
             if (decision.reason.isEmail()) {

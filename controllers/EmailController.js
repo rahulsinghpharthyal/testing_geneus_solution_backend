@@ -3,10 +3,7 @@ import { configDotenv } from 'dotenv';
 configDotenv()
 const sendEmail = async (sender, receiver, subject, text) => {
     try {
-      console.log('this is sender', sender)
-      console.log('this is receiver', receiver)
-      console.log('this is subject', subject)
-      console.log('this is text', text)
+
       let transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {

@@ -15,7 +15,7 @@ const getYourCaloriesRequirement = async (req, res) => {
       return;
     }
 
-    const detailExists = await Details.findOne({ user: userId });
+    const detailExists = await Details.findOne({ userId: userId });
 
     if (!detailExists) {
       res.status(404).json({ message: "Details not found" });
@@ -122,7 +122,7 @@ const updateDetail = async (req, res) => {
     const tdee = bmi * activityFactor + goalMultiplier;
     const calories = Math.round(tdee);
 
-    const detailExists = await Details.findOne({ user:userId });
+    const detailExists = await Details.findOne({ userId:userId });
 
     if (!detailExists) {
       const newDetail = new Details({
@@ -141,7 +141,7 @@ const updateDetail = async (req, res) => {
     }
 
     const updatedDetail = await Details.findOneAndUpdate(
-      { user:userId },
+      { userId:userId },
       {
         goal,
         activityLevel,
