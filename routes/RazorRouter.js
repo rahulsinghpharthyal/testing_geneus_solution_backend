@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import {getPaymentHistoryByUser, paymentVerification, postRazorpay} from "../controllers/RazorpayController.js"
+import {getPaymentHistoryByUser, paymentVerification, postRazorpay} from "../controllers/PaymentController.js"
 dotenv.config();
 
 const router = express.Router();
