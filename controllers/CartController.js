@@ -1,94 +1,80 @@
 import Cart from "../models/Cart.js";
-import User from "../models/User.js";
+import MyLearning from "../models/Mylearnings.js";
 import { configDotenv } from 'dotenv';
 configDotenv()
+
+
+const getCart = async (req, res) => {
+  try {
+
+    const { userId } = req.user;
+
+    if (!userId) {
+      return res.status(401).send({ message: "User ID is missing" });
+    }
+    const cart = await Cart.findOne({ userId }).populate("coursesIds" , '_id title img description level price discount_price price').exec();
+    // console.log("this is cart", cart);
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const {coursesIds:courses,cartItemLength} = cart;
+
+    return res.status(200).json({courses, cartItemLength});
+    
+  } catch (error) {
+    console.error("Error fetching cart items:", error);
+    res.status(500).json({ message: "Error fetching cart items" });
+  }
+}
+
 const addtoCart = async (req, res) => {
     try {
-      const { userId, courseItem } = req.body;
+
+      const { userId } = req.user;
+
+      const {courseId} = req.body;
+
       if (!userId) {
         return res.status(401).send({ message: "User ID is missing" });
       }
   
-      if (!courseItem) {
+      if (!courseId) {
         return res.status(401).send({ message: "Course item is missing" });
       }
   
-      const user = await User.findById(userId);
-          
-      if (!user) {
-        return res.status(404).send({ message: "User not found" });
-      }
+      const mylearning = await MyLearning.findOne({userId})
   
-      const courseIndex = user.courses.findIndex(
-        (name) => name.toString() === courseItem.course_id.toString()
-      );
-  
-      if (courseIndex !== -1) {
-        return res.status(200).json({ message: "Course already purchased" });
+      if (mylearning) {
+        const courseIndex = mylearning?.courses_id?.findIndex(
+          (id) => id.toString() === courseId.toString()
+        );
+
+        if (courseIndex !== -1) {
+          return res.status(400).json({ message: "Course already purchased" });
+        }
       }
   
       const cart = await Cart.findOne({ user_id: userId });
-  
-      if (cart) {
-        const isItemAlreadyInCart = cart.cart_items.some((cart_item) => {
-          return (
-            cart_item.course_id.toString() === courseItem.course_id.toString()
-          );
-        });
-  
-        if (isItemAlreadyInCart) {
-          return res.status(200).json({ message: "Course already in cart" });
-        }
-  
-        cart.cart_items.push(courseItem);
-  
-        let total = 0;
-        let discount = 0;
-  
-        cart.cart_items.forEach((cart_item) => {
-          total += cart_item.course_price;
-          discount += cart_item.course_discountPrice;
-        });
-  
-        cart.cart_total = total;
-        cart.discount = discount;
-        cart.total_after_discount = cart.cart_total - cart.discount;
-  
-        await cart.save();
-  
-        return res.status(200).json({ message: "Course added to cart" });
-      } else {
-        const newCart = new Cart({
-          user_id: userId,
-          cart_items: [courseItem],
-          cart_total: courseItem.course_price,
-          discount: courseItem.course_discountPrice,
-          total_after_discount:
-          courseItem.course_price - courseItem.course_discountPrice,
-        });
-        await newCart.save();
-        return res.status(200).json({ message: "Course added to cart" });
-      }
-    } catch (error) {
-      console.error("Error adding course to cart:", error);
-      return res.status(500).json({ message: "Error adding course to cart" });
-    }
-  }
 
-  const getCart = async (req, res) => {
-    try {
-      const { user_id } = req.query;
-      if (!user_id) {
-        return res.status(401).send({ message: "User ID is missing" });
+      const courseExists = cart?.coursesIds?.includes(courseId);
+      
+      if (courseExists) {
+        return res.status(400).json({ message: "Course already in cart" });
       }
-      const cart = await Cart.findOne({ user_id }).exec();
-      if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-      return res.status(200).json(cart);
+
+      const updatedCartData = await Cart.findOneAndUpdate(
+        { user_id: userId },
+        { $push: { coursesIds: courseId }, cartItemLength: cart?.cartItemLength ? cart?.cartItemLength + 1 : 1 },
+        { new: true, upsert: true }
+    );
+
+      return res.status(200).json({ message: "Course added to cart" });
+
     } catch (error) {
-      console.error("Error fetching cart items:", error);
-      res.status(500).json({ message: "Error fetching cart items" });
+      console.log("Error adding course to cart:", error);
+      return res.status(500).json({ message: "Error adding course to cart" });
     }
   }
 
@@ -117,34 +103,41 @@ const cartEmpty = async (req, res) => {
   const cartDelete = async (req, res) => {
 
     try {
-      const { user_id, course_id } = req.body;
-      if (!user_id || !course_id) {
+
+      const { userId } = req.user;
+
+      const { course_id } = req.body;
+
+      if (!userId || !course_id) {
         return res
           .status(400)
           .json({ message: "Both user_id and course_id are required." });
       }
-      const cart = await Cart.findOne({ user_id }).exec();
+
+      const cart = await Cart.findOne({ userId }).exec();
+      
       if (!cart) {
         return res.status(404).json({ message: "Cart not found." });
       }
-      const cartItemIndex = cart.cart_items.findIndex(
-        (cart_item) => cart_item._id.toString() === course_id.toString()
-      );
-      if (cartItemIndex === -1) {
-        return res.status(404).json({ message: "Cart item not found." });
+
+      // Check if the course_id exists in the cart or not
+
+      const isExists = cart.coursesIds.includes(course_id);
+
+      if (!isExists) {
+        return res.status(404).json({ message: "Course not found in cart." });
       }
-      cart.cart_items.splice(cartItemIndex, 1);
-      let total = 0;
-      let discount = 0;
-      cart.cart_items.forEach((cart_item) => {
-        total += cart_item.course_price;
-        discount += cart_item.course_discountPrice;
-      });
-      cart.cart_total = total;
-      cart.discount = discount;
-      cart.total_after_discount = cart.cart_total - cart.discount;
+
+      // Remove the course_id from the cart
+
+      cart.coursesIds = cart.coursesIds.filter(
+        (course) => course.toString() !== course_id.toString()
+      );
+      cart.cartItemLength = cart.cartItemLength - 1;
       await cart.save();
+
       return res.status(200).json({ message: "Item deleted successfully" });
+
     } catch (error) {
       console.error("Error deleting cart item:", error);
       res.status(500).json({

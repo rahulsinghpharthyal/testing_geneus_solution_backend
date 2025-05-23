@@ -5,7 +5,7 @@ const courseSchema = new mongoose.Schema(
     id: Number,
     title: String,
     img: String,
-    description: [{title:String,details:String}],
+    description:String,
     level: String,
     price: Number,
     discount_price: Number,

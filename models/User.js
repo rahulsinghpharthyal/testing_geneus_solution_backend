@@ -36,7 +36,7 @@ const userSchema = new Schema(
             type: Boolean,
             default: false,
         },
-        otp:{
+        otp: {
             type: Number,
         },
         otpExpires: {
@@ -51,7 +51,12 @@ const userSchema = new Schema(
                 "Please fill a valid 10-digit mobile number",
             ],
         },
-        courses: [String],
+        courses: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Course",
+            }
+        ],
         resetPasswordToken: String,
         resetPasswordExpires: Date,
         role: {
@@ -63,18 +68,18 @@ const userSchema = new Schema(
             type: Boolean,
             default: false,
         },
-		details : {
-			type : mongoose.Schema.Types.ObjectId,
-			ref : 'Details'
-		},
-		food : {
-			type : mongoose.Schema.Types.ObjectId,
-			ref : 'Food'
-		},
-		plan : {
-			type : mongoose.Schema.Types.ObjectId,
-			ref : 'Plan'
-		},
+        details: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Details",
+        },
+        food: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "UserDietDiary",
+        },
+        plan: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Plan",
+        },
         refreshToken: {
             type: String,
         },
@@ -87,19 +92,17 @@ const userSchema = new Schema(
 // After successfull registration save the user Id into the userProfile model
 userSchema.post("save", async function (doc) {
     try {
-      const userProfile = new UserProfile({
-        userId: doc._id, 
-      });
-  
-      await userProfile.save(); 
+        const userProfile = new UserProfile({
+            userId: doc._id,
+        });
+
+        await userProfile.save();
     } catch (error) {
-      console.error("Error creating UserProfile:", error.message);
+        console.error("Error creating UserProfile:", error.message);
     }
-  });
+});
 
-const User = mongoose.models.User || mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
-
-
- // Default export
+// Default export
 export default User;

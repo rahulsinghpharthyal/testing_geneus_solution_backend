@@ -1,10 +1,14 @@
 import express from 'express';
-import { updateDetail } from '../controllers/DetailController.js';
 import { configDotenv } from 'dotenv';
 configDotenv()
+
+import { getYourCaloriesRequirement,updateDetail } from '../controllers/DetailController.js';
 const router = express.Router();
 
-router.post('/api/detail/update', updateDetail);
+import { Auth } from '../controllers/AuthController.js'
+
+router.post('/api/detail/update',Auth, updateDetail);
+router.get('/api/detail/getYourCaloriesRequirement', Auth, getYourCaloriesRequirement);
 
 
 export default router;
