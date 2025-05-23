@@ -226,7 +226,6 @@ const logut = async (req, res) => {
 };
 
 const contact = async (req, res) => {
-<<<<<<< HEAD
   try {
     const { name, email, subject, message } = req.body;
     if (!name) return res.status(400).json({ error: "Name is required" });
@@ -240,22 +239,6 @@ const contact = async (req, res) => {
       subject,
       message,
     });
-=======
-    try {
-        const { name, email, subject, message } = req.body;
-        if (!name) return res.status(400).json({ error: "Name is required" });
-        if (!email) return res.status(400).json({ error: "Email is required" });
-        if (!subject)
-            return res.status(400).json({ error: "Contact is required" });
-        if (!message)
-            return res.status(400).json({ error: "Please mention your query" });
-        const query = new Query({
-            name,
-            email,
-            subject,
-            message,
-        });
->>>>>>> 8ae83a777bcd0140c3651acb77f0483ae19030b7
 
         const currentDate = new Date();
         const newQuery = "Geneus Solutions New Contact Query: " + name;
