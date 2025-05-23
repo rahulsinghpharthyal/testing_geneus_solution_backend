@@ -1,10 +1,13 @@
+// This schema is for contact us page:-
+
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
 var validateEmail = function(email) {
   var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   return re.test(email);
 };
-const querySchema = new Schema(
+
+const ContactSchema = new Schema(
   {
     name: {
       type: String,
@@ -23,11 +26,6 @@ const querySchema = new Schema(
         'Please fill a valid Email',
       ],
     },
-    // contact: {
-    //   type: Number,
-    //   trim: true,
-    //   required: true,
-    // },
     subject: {
       type: String,
       trim: true,
@@ -38,6 +36,11 @@ const querySchema = new Schema(
       trim: true,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['PENDING', 'REJECTED', 'COMPLETED'],
+      default: 'PENDING'
+    }
   },
   { timestamps: true }
 );
@@ -54,6 +57,6 @@ mongoose.connection.on('open', function () {
     });
   });
   
-querySchema.index({ email: 1 }, { unique: false });
+ContactSchema.index({ email: 1 }, { unique: false });
 
-export default mongoose.model('Query', querySchema);
+export default mongoose.model('Contact', ContactSchema);

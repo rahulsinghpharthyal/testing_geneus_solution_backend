@@ -140,4 +140,24 @@ const paymentVerification = async (req, res) => {
   }
 };
 
-export { paymentVerification, postRazorpay };
+
+// GET /api/payments/:userId
+const getPaymentHistoryByUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const payments = await Payment.find({ user_id: userId }).sort({ createdAt: -1 });
+
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ message: "No payment history found." });
+    }
+
+    res.status(200).json({ success: true, payments });
+  } catch (error) {
+    console.error("Error fetching payment history:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
+export { paymentVerification, postRazorpay, getPaymentHistoryByUser };

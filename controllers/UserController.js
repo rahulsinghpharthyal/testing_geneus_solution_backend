@@ -1,4 +1,4 @@
-import Query from "../models/Query.js";
+import Enquiry from "../models/Enquiry.js";
 import User from "../models/User.js";
 import Detail from "../models/FoodDetails.js";
 import Food from "../models/Food.js";
@@ -10,13 +10,13 @@ import {
 import sendEmail from "./EmailController.js";
 import bcryptjs from "bcryptjs";
 import Token from "../models/Token.js";
-import Enquiry from "../models/Enquiry.js";
 import crypto from "crypto";
 import NewUser from "../models/NewUser.js";
 import { configDotenv } from "dotenv";
 import jwt from "jsonwebtoken";
 import aj from "../utilities/ArcjectSetup/arcjetConfig.js";
 import UserProfile from "../models/UserProfile.js";
+import Contact from "../models/Contact.js";
 
 configDotenv();
 
@@ -211,7 +211,7 @@ const contact = async (req, res) => {
     if (!subject) return res.status(400).json({ error: "Contact is required" });
     if (!message)
       return res.status(400).json({ error: "Please mention your query" });
-    const query = new Query({
+    const query = new Contact({
       name,
       email,
       subject,
@@ -511,23 +511,76 @@ const androidSignup = async (req, res) => {
 
 const enquiry =  async (req, res) => {
   try {
-      const { name, email, contact } = req.body;
+      const { name, email, subject, paymentid, message } = req.body;
+      console.log(req.body)
       if (!name) return res.status(400).send("Name is required");
       if (!email) return res.status(400).send("Email is required");
-      if (!contact) return res.status(400).send("Contact is required");
+      if (!subject) return res.status(400).send("Subject is required");
       const enquiry = new Enquiry({
           name,
           email,
-          contact,
+          subject,
+          paymentId: paymentid,
+          message,
       });
+      if(paymentid){
+      const currentDate = new Date();
+      const newQuery = "Geneus Solutions Student payment related Query: " + name;
+      const emailSubject = `${newQuery} on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
+      
+        sendEmail(
+          email,
+          process.env.toAdmin,
+          emailSubject,
+          `Name: ${name}\nEmail: ${email}\nMessage: ${message}\nPaymentId: ${paymentid}`
+        );
+      }
       await enquiry.save();
-      return res.status(200).json({ ok: true });
+      return res.status(200).json({message: 'Your Query submitted we will connect to you soon.'});
   } catch (err) {
       console.log(err);
-      return res.status(400).send("Error occurred! Please try again later");
+      return res.status(500).send("Error occurred! Please try again later");
   }
 };
 
+const getEnquiry = async (req, res) => {
+  try{
+    const allEnquiry = await Enquiry.find();
+    return res.status(200).json({allEnquiry})
+
+  }catch(error){
+    console.log(error);
+    return res.status(500).json({message: 'Error Occured! Please check out'})
+  }
+}
+
+const deleteEnquiry = async (req, res) => {
+  try{
+    const {id} = req.params;
+    const findQuery = await Enquiry.findByIdAndDelete(id);
+    return res.status(200).json({message: 'Enquiry Deleted.'})
+  }catch(error){
+    console.log('this is error', error);
+    return res.status(500).json({message: 'Error Occured! On Delete the query'})
+  }
+}
+
+const updateEnquiry = async (req, res) => {
+  try{
+    const { status }= req.body;
+    const { id }= req.params;
+    const findQuery = await Enquiry.findOneAndUpdate(
+      {_id:  id},
+      {$set: {status}},
+      {new: true}
+    );
+    if(!findQuery) return res.status(400).json({success: false, message: 'Enquery not found'});
+    return res.status(200).json({success: true, messagge: "Enquiry Status Updated"});
+  }catch(error){
+    console.log('this is error', error);
+    return res.status(500).json({message: 'Error on update the enquiry status'})
+  }
+}
 const validateToken = async (req, res, next) => {
   try {
     const token = req.cookies["token"];
@@ -710,7 +763,7 @@ const deleteUserAccountById = async (req, res) => {
         const { id } = req.params; // ID to be deleted
         const { userId } = req.user; // Logged-in user's ID and role
         //find the user by id
-        const user = await User.findById({ _id: userId });
+        const user = await User.findById({ _id: userId });console.log(user)
         // Check if the user is authorized to delete this account
         if (user.role !== "admin" && userId !== id) {
             return res.status(403).json({
@@ -747,6 +800,9 @@ export {
     resetPassword,
     login,
     enquiry,
+    getEnquiry,
+    deleteEnquiry,
+    updateEnquiry,
     signup,
     androidSignup,
   newUserRegister,
