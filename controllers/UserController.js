@@ -389,7 +389,7 @@ const signup = async (req, res) => {
         const newPlan = await Plan.create({
             userId: newUser._id,
             name: "Free Trial",
-            duration: 7,
+            duration: 3,
             price: freePlanPrice,
         });
 
@@ -439,6 +439,7 @@ const signup = async (req, res) => {
             .json({ error: "An error occurred! Please try again later." });
     }
 };
+
 
 const androidSignup = async (req, res) => {
     try {
