@@ -382,20 +382,20 @@ const signup = async (req, res) => {
 
 
         // Create related details, food, and plan
-        const newDetail = await Detail.create({ user: newUser._id });
-        const newFood = await Food.create({ user: newUser._id });
-        const freePlanPrice = 0;
+        // const newDetail = await Detail.create({ user: newUser._id });
+        // const newFood = await Food.create({ user: newUser._id });
+        // const freePlanPrice = 0;
 
-        const newPlan = await Plan.create({
-            userId: newUser._id,
-            name: "Free Trial",
-            duration: 3,
-            price: freePlanPrice,
-        });
+        // const newPlan = await Plan.create({
+        //     userId: newUser._id,
+        //     name: "Free Trial",
+        //     duration: 3,
+        //     price: freePlanPrice,
+        // });
 
-        newUser.details = newDetail._id;
-        newUser.food = newFood._id;
-        newUser.plan = newPlan._id;
+        // newUser.details = newDetail._id;
+        // newUser.food = newFood._id;
+        // newUser.plan = newPlan._id;
         await newUser.save();
 
         // Send the email without sensitive info
