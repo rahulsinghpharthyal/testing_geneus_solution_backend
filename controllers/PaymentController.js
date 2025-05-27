@@ -149,10 +149,10 @@ const paymentVerification = async (req, res) => {
 // GET /api/payments/:userId
 const getPaymentHistoryByUser = async (req, res) => {
   try {
-    const userId = req.params.userId;
-
+    const userId = req.params.user_Id;
+    console.log(userId)
     const payments = await Payment.find({ user_id: userId }).sort({ createdAt: -1 });
-
+    console.log(payments, 'this is payments');
     if (!payments || payments.length === 0) {
       return res.status(404).json({ message: "No payment history found." });
     }
