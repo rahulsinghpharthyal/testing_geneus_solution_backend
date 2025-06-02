@@ -130,6 +130,7 @@ const paymentVerification = async (req, res) => {
         payment_id: razorpay_payment_id,
         signature: razorpay_signature,
         status: "success",
+        user_id: req.user.userId,
       });
       
       const {data,event/*,expectedPaymentToReceive*/} = paymentDetails.notes;
@@ -157,7 +158,7 @@ const getPaymentHistoryByUser = async (req, res) => {
       return res.status(404).json({ message: "No payment history found." });
     }
 
-    res.status(200).json({ success: true, payments });
+    res.status(200).json({ success: true, data: payments });
   } catch (error) {
     console.error("Error fetching payment history:", error);
     res.status(500).json({ success: false, error: error.message });
