@@ -43,7 +43,7 @@ const foodSchema = new mongoose.Schema({
             },
         },
     ],
-});
+},{timestamps: true});
 
 const Food = mongoose.model("UserDietDiary", foodSchema);
 
