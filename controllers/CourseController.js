@@ -204,7 +204,7 @@ const courseCheckout = async (req, res) => {
 
     const { userId } = req.user;
     
-    const { currency,courseIds } = req.body;
+    const { currency,courseIds, couponCode } = req.body;
 
     // Validate userId and courseId
     if (!userId) {
@@ -234,10 +234,15 @@ const courseCheckout = async (req, res) => {
       return course?._id?.toString();
     });
 
-    const payableAmount = courses.reduce((total, course) => {
+    let payableAmount = courses.reduce((total, course) => {
       const coursePrice = course.discount_price || course.price;
       return total + coursePrice;
     }, 0);
+
+    // this is static only 1 rupees if we intergrate with other copon so change the code
+    if(couponCode === 'a3e29f41'){
+      payableAmount = 1;
+    }
 
     const options = {
       amount: payableAmount * 100,
