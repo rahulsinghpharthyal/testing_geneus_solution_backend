@@ -17,6 +17,7 @@
         "cookie-session": "^2.0.0",
         "cors": "^2.8.5",
         "crypto": "^1.0.1",
+        "csv-parser": "^3.2.0",
         "dotenv": "^16.3.1",
         "esm": "^3.2.25",
         "express": "^4.18.2",
@@ -37,7 +38,8 @@
         "passport-local-mongoose": "^8.0.0",
         "razorpay": "^2.9.2",
         "react-scripts": "5.0.1",
-        "shortid": "^2.2.16"
+        "shortid": "^2.2.16",
+        "yahoo-finance2": "^2.13.3"
     },
     "devDependencies": {
         "@babel/cli": "^7.22.9",
@@ -47,5 +49,6 @@
     "keywords": [],
     "description": "",
     "proxy": "http://localhost:8000",
-    "homepage": "."
+    "homepage": ".",
+    "packageManager": "yarn@4.7.0+sha512.5a0afa1d4c1d844b3447ee3319633797bcd6385d9a44be07993ae52ff4facabccafb4af5dcd1c2f9a94ac113e5e9ff56f6130431905884414229e284e37bb7c9"
 }
