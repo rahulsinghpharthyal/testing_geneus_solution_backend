@@ -1,34 +1,57 @@
-import Voucher from "../models/Voucher.js";
+import ApiError from "../utilities/ApiError.js";
+import { findUsersByEmailsOrFail } from "../services/userServices/userService.js";
+import { createVoucherService } from "../services/voucherServices/voucherService.js";
+import ApiResponse from "../utilities/ApiResponse.js";
+import catchAsync from "../utilities/catchAsync.js";
+import { verifyVoucherService } from "../services/voucherServices/applyVoucherService.js";
+import { findVoucherUsage } from "../services/voucherUsageServices/findVoucherUsage.js";
+import { couponIsValidOrFail } from "../services/couponServices/couponIsValidOrFails.js";
 
-const redeemVoucher =  async (req, res) => {
-    try {
-      const voucher = await Voucher.findById(req.params.id).populate("coupon_id");
-  
-      if (!voucher) return res.status(404).json({ error: "Voucher not found" });
-      if (voucher.status === "redeemed") return res.status(400).json({ error: "Voucher already redeemed" });
-  
-        //   check if the coupon is expired
-        if (voucher.coupon_id.expires_at < new Date()) return res.status(400).json({ error: "Coupon expired" });
+export const createVoucherController = catchAsync(async (req, res) => {
+  const {
+    coupon_id,
+    user_emails = [],
+    distributeToAll = false,
+    expires_at,
+  } = req.body;
 
-      voucher.status = "redeemed";
-      await voucher.save();
-  
-      res.status(200).json({ message: "Voucher redeemed successfully", voucher });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-}
+  await couponIsValidOrFail(coupon_id);
 
-// Get vouchers by user ID
+   let finalUserIds = [];
 
-const getVouchersByUserId = async (req, res) => {
-    try {
-      const vouchers = await Voucher.find({ user_id: req.params.userId }).populate("coupon_id");
-      res.status(200).json(vouchers);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+  if (distributeToAll) {
+    const allUsers = await findUsersByEmailsOrFail(user_emails); // or use a User.find() call
+    finalUserIds = allUsers.map(u => u._id.toString());
+  } else if (Array.isArray(user_emails) && user_emails.length > 0) {
+    const users = await findUsersByEmailsOrFail(user_emails);
+    finalUserIds = users.map(u => u._id.toString());
   }
 
-export { redeemVoucher,getVouchersByUserId };   
+  const vouchers = await createVoucherService({
+    coupon_id,
+    user_ids: finalUserIds,
+    expires_at,
+  });
 
+  if (!vouchers || vouchers.length === 0) {
+    throw new ApiError(500, "No vouchers were created");
+  }
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, vouchers, "Voucher(s) Created"));
+});
+
+
+export const applyVoucherService = catchAsync(async(req, res) => {
+  const {code, cartAmount, course_id} = req.body;
+  console.log('this is appyVoucher', req.body)
+  const user_id = req.user?.userId;
+  if(!code || !cartAmount){
+   throw new ApiError(400, "Voucher code and amount are required!")
+  }
+  const alreadyUse = await findVoucherUsage(user_id, code);
+  
+  const result = await verifyVoucherService({ code, user_id, cartAmount, course_id });
+  return res.status(200).json(new ApiResponse(200, result, "Coupon Applied Succesfully"))
+})

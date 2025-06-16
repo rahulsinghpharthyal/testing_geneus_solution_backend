@@ -7,31 +7,32 @@ import sendEmail from "./EmailController.js";
 import { configDotenv } from "dotenv";
 
 import eventBus from "../utilities/createEvent.js";
-import '../services/courses/purchaseCourse.js';
+import "../services/courses/purchaseCourse.js";
 
 configDotenv();
 
 const getPaymentKey = async (req, res) => {
   try {
-      return res.status(200).json({
-          key_id: process.env.RAZORPAY_ID,
-      })
+    return res.status(200).json({
+      key_id: process.env.RAZORPAY_ID,
+    });
   } catch (error) {
-      return res.status(500).json({
-          message: 'Something went wrong',
-      })
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
   }
-}
+};
 
 const postRazorpay = async (req, res) => {
-  console.log('this is postRazorpay body', req.body)
+  console.log("this is postRazorpay body", req.body);
   try {
-    const getExistingCourse = await User.findOne({email: req.body.email}).select('courses');
+    const getExistingCourse = await User.findOne({
+      email: req.body.email,
+    }).select("courses");
 
-    console.log(getExistingCourse, 'this is getExistingCourse')
+    console.log(getExistingCourse, "this is getExistingCourse");
 
-    if(getExistingCourse?.courses?.length > 0) {
-
+    if (getExistingCourse?.courses?.length > 0) {
       const existingCourse = getExistingCourse.courses;
       const cartDetails = req.body.cart_details;
 
@@ -39,8 +40,10 @@ const postRazorpay = async (req, res) => {
         return cartDetails.includes(course);
       });
 
-      if (isCourseAlreadyEnrolled) {  
-        return res.status(409).json({ error: "You have already enrolled for this course" });        
+      if (isCourseAlreadyEnrolled) {
+        return res
+          .status(409)
+          .json({ error: "You have already enrolled for this course" });
       }
     }
 
@@ -70,7 +73,6 @@ const postRazorpay = async (req, res) => {
         updatedOrderStatus,
         `Name: ${req.body.username}\namount: ${amount}\nreceipt: ${options.receipt}`
       );
-      
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
@@ -97,63 +99,68 @@ const postRazorpay = async (req, res) => {
 
 const paymentVerification = async (req, res) => {
   try {
-    
-    const {razorpay_order_id,razorpay_payment_id,razorpay_signature} = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      req.body;
 
     const PaymentInstance = new Razorpay({
       key_id: process.env.RAZORPAY_ID,
       key_secret: process.env.RAZORPAY_SECRET,
     });
 
-    const paymentDetails = await PaymentInstance.payments.fetch(razorpay_payment_id);
+    const paymentDetails = await PaymentInstance.payments.fetch(
+      razorpay_payment_id
+    );
     // console.log('paymentDetails : ', paymentDetails);
 
     // check if payment is captured
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
-    
+
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET)
       .update(body)
       .digest("hex");
-      
-      const isAuthentic = expectedSignature === razorpay_signature;
 
-      if(!isAuthentic){
-        return res.status(500).json({
-            success: false,
-            message: "Payment verification failed",
-        })
-      }
+    const isAuthentic = expectedSignature === razorpay_signature;
 
-      const payment = await Payment.create({
-        order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id,
-        signature: razorpay_signature,
-        status: "success",
-        user_id: req.user.userId,
+    if (!isAuthentic) {
+      return res.status(500).json({
+        success: false,
+        message: "Payment verification failed",
       });
-      
-      const {data,event/*,expectedPaymentToReceive*/} = paymentDetails.notes;
+    }
 
-      eventBus.emit(event, {...data, paymentId: razorpay_payment_id, orderId: razorpay_order_id});
+    const payment = await Payment.create({
+      order_id: razorpay_order_id,
+      payment_id: razorpay_payment_id,
+      signature: razorpay_signature,
+      status: "success",
+      user_id: req.user.userId,
+    });
 
+    const { data, event /*,expectedPaymentToReceive*/} = paymentDetails.notes;
 
-      res.status(200).json({ success: true });
-    
+    eventBus.emit(event, {
+      ...data,
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+    });
+
+    res.status(200).json({ success: true });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
 
-
 // GET /api/payments/:userId
 const getPaymentHistoryByUser = async (req, res) => {
   try {
     const userId = req.params.user_Id;
-    console.log(userId)
-    const payments = await Payment.find({ user_id: userId }).sort({ createdAt: -1 });
-    console.log(payments, 'this is payments');
+    console.log(userId);
+    const payments = await Payment.find({ user_id: userId }).sort({
+      createdAt: -1,
+    });
+    console.log(payments, "this is payments");
     if (!payments || payments.length === 0) {
       return res.status(404).json({ message: "No payment history found." });
     }
@@ -165,5 +172,9 @@ const getPaymentHistoryByUser = async (req, res) => {
   }
 };
 
-
-export { getPaymentKey,paymentVerification, postRazorpay, getPaymentHistoryByUser };
+export {
+  getPaymentKey,
+  paymentVerification,
+  postRazorpay,
+  getPaymentHistoryByUser,
+};
