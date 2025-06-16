@@ -48,13 +48,13 @@ const ContactSchema = new Schema(
 
 mongoose.connection.on('open', function () {
     const collection = mongoose.connection.collection('queries');
-    collection.dropIndex('email_1', function (error, result) {
-      if (error) {
-        console.log('Error dropping index:', error);
-      } else {
-        console.log('Index dropped successfully:', result);
-      }
-    });
+    // collection.dropIndex('email_1', function (error, result) {
+    //   if (error) {
+    //     console.log('Error dropping index:', error);
+    //   } else {
+    //     console.log('Index dropped successfully:', result);
+    //   }
+    // });
   });
   
 ContactSchema.index({ email: 1 }, { unique: false });

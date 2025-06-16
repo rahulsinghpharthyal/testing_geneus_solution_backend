@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path'; 
 
 import connectDB from './db/Connect.js'
+import errorHandler from "./middlewares/errorHandler.js";
 
 
 // Manually create __dirname
@@ -35,6 +36,7 @@ const corsOptions = {
     'Access-Control-Request-Method',
     'Access-Control-Request-Headers',
     'Frontend-URL',
+    'x-voucher-token'
   ],
   credentials: true,
   preflightContinue: false,
@@ -55,19 +57,34 @@ app.use(morgan("dev"));
 
 const routes = readdirSync("./routes");
 // console.log('Routes:', routes);
-routes.forEach(async (r) => {
-    const routePath = `./routes/${r}`;
+// routes.forEach(async (r) => {
+//     const routePath = `./routes/${r}`;
+//     const router = (await import(routePath)).default;
+//     app.use("/", router);
+// });
+for (const file of routes) {
+  try {
+    const routePath = `./routes/${file}`;
     const router = (await import(routePath)).default;
     app.use("/", router);
-});
+  } catch (err) {
+    console.error(`Failed to load route ${file}:`, err);
+  }
+}
+
+
 
 // Set up Morgan with a custom log format and write logs to a file
 const accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
 app.use(morgan("combined", { stream: accessLogStream }));
 
+
+// Error Handler Middleware:-
+app.use(errorHandler);
+
 // Start the server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT,"0.0.0.0", async() =>{
+app.listen(PORT,"0.0.0.0", async() => {
   await connectDB();
   console.log(`Server is running successfully on PORT ${PORT}`)
 });
