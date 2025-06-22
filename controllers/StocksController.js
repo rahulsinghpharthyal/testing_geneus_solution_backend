@@ -1,6 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const assert = require('assert');
+import stockList from "../data/stockList.json" assert { type: "json" };
 import catchAsync from "../utilities/catchAsync.js";
 import ApiError from "../utilities/ApiError.js";
 import { createStock } from "../services/stockServices/createStockService.js";
