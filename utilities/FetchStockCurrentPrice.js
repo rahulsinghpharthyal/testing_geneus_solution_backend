@@ -15,6 +15,6 @@ export const fetchStockCurrentPrice = async (symbol) => {
 
     return price;
   } catch (err) {
-    throw new ApiError(500, `Stock fetch failed: ${err.message}`);
+    throw new ApiError(500, `Stock current Price fetch failed: ${err.message}`);
   }
 };
