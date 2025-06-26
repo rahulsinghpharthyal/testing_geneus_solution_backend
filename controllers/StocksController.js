@@ -11,6 +11,7 @@ import { getStocksSymbols } from "../services/stockServices/getStockSymbols.js";
 const getStocksName = async (req, res) => {
   try {
     const stockList = await getStocksSymbols();
+    console.log('this is all stocks symbols', stockList)
     return res.status(200).json(stockList);
   } catch (error) {
     console.error(error);
