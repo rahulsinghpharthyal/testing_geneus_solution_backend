@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const stocksSchema = mongoose.Schema({
+const stocksTargetSchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -10,23 +10,19 @@ const stocksSchema = mongoose.Schema({
         require: true,
         trim: true,
     },
-    purchasedShares: {
+    targetPercentage: {
         type: Number,
         require: true,
         trim: true,
+        default: 10
     },
-    purchaseDate: {
-        type: Date,
-        require: true
-    },
-    buyPrice: {
-        type: Number,
-        require: true,
-        trim: true,
+      emailSent: {
+      type: Boolean,
+      default: false,
     },
 }, {timestamps: true});
 
-const Stock = new mongoose.model('Stock', stocksSchema);
+const StockTarget = new mongoose.model('StockTarget', stocksTargetSchema);
 
-export default Stock;
+export default StockTarget;
 

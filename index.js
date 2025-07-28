@@ -9,8 +9,11 @@ import fs from "fs";
 import { fileURLToPath } from 'url'; 
 import { dirname } from 'path'; 
 
+import cron from 'node-cron';
+
 import connectDB from './db/Connect.js'
 import errorHandler from "./middlewares/errorHandler.js";
+import { checkProfitAndSendMail } from "./services/stockServices/checkProfitAndSendMail.js";
 
 
 // Manually create __dirname
@@ -52,16 +55,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// import captureVisitorData from "./middlewares/captureVisitorData.js";
-// app.use(captureVisitorData);
-
 const routes = readdirSync("./routes");
-// console.log('Routes:', routes);
-// routes.forEach(async (r) => {
-//     const routePath = `./routes/${r}`;
-//     const router = (await import(routePath)).default;
-//     app.use("/", router);
-// });
 for (const file of routes) {
   try {
     const routePath = `./routes/${file}`;
@@ -73,6 +67,13 @@ for (const file of routes) {
 }
 
 
+cron.schedule('0 4,7,12 * * *', async () => {
+  await checkProfitAndSendMail();
+});
+
+// cron.schedule('* * * * *', async () => {
+//   await checkProfitAndSendMail();
+// });
 
 // Set up Morgan with a custom log format and write logs to a file
 const accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
